@@ -1,0 +1,9 @@
+{
+  "name": "FCS_labs",
+  "version": "0.0.1",
+  "dependencies": "",
+  "devDependencies": {
+    "gulp": "^3.9.0",
+    "wiredep": "^2.2.2"
+  }
+}
