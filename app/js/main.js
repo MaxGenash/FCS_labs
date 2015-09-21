@@ -1,11 +1,20 @@
 //написати віджет matrix
+//написати ф-цію що рахуватими кількість стовпців у матриці замість arr[0].length
 (function() {
     var app = {
 
         initialize: function () {
             this.form1 = document.forms["lab1-inp-form"];
+            this.initialMatrix1 = [
+                ["T1", "T2", "T3", "C1", "C2"],
+                ["T2", "T3", "C1"],
+                ["T4", "T5", "T3", "C3"],
+                ["T2", "T5", "F1"],
+                ["T3", "C1", "C2"]
+            ];
             this.setUpListeners();
             this.updateResult();
+            this.updateInpMatrix( this.initialMatrix1 );
         },
 
         setUpListeners: function () {
@@ -13,27 +22,40 @@
             document.getElementById("inp-num-of-cols").addEventListener("change", this.updateInpMatrix);
             this.form1.addEventListener("submit", app.submitForm);
         },
-        updateInpMatrix: function() {
 
-            var rows = document.getElementById("inp-num-of-rows").value,
-                cols = document.getElementById("inp-num-of-cols").value,
-                table = app.form1.getElementsByTagName("table")[0],
+        updateInpMatrix: function(initialMatrix) {
+            var table = app.form1.getElementsByTagName("table")[0],
+                rows,
+                cols,
                 i, j,
                 str = "";
 
             table.innerHTML = "";
-
-            for (i = 0; i < rows; i++) {
-                str += "<tr>";
-                for (j = 0; j < cols; j++) {
-                    str += '<td class="input-cell"> <input type="text" pattern="[a-z,A-Z,0-9,а-я,А-Я]{0,4}" title="Введіть назви, що складаються з числел та букв довжиною до 4 символів">  </td>';
+            if(initialMatrix && initialMatrix instanceof Array){
+                rows = document.getElementById("inp-num-of-rows").value = initialMatrix.length;
+                cols = document.getElementById("inp-num-of-cols").value = initialMatrix[0].length;
+                for (i = 0; i < rows; i++) {
+                    str += "<tr>";
+                    for (j = 0; j < cols; j++) {
+                        var inpVal = (initialMatrix[i] && initialMatrix[i][j]) ? initialMatrix[i][j] : "" ;
+                        str += ('<td class="input-cell"> <input type="text" pattern="[\\w,а-я,А-Я,і,ї]{0,4}" title="Введіть назви, що складаються з числел та букв довжиною до 4 символів" value="' + inpVal  + '">' + '</td>');
+                    }
+                    str += "</tr>";
                 }
-                str += "</tr>";
+            } else {
+                rows = document.getElementById("inp-num-of-rows").value;
+                cols = document.getElementById("inp-num-of-cols").value;
+                for (i = 0; i < rows; i++) {
+                    str += "<tr>";
+                    for (j = 0; j < cols; j++) {
+                        str += ('<td class="input-cell"> <input type="text" pattern="[\\w,а-я,А-Я,і,ї]{0,4}" title="Введіть назви, що складаються з числел та букв довжиною до 4 символів">' + '</td>');
+                    }
+                    str += "</tr>";
+                }
             }
-
             table.innerHTML = str;
-
         },
+
         updateResult: function (opts) {
             // setting default values
             if(!opts){
@@ -125,7 +147,7 @@
                                 count++;
                         }
                     }
-                    resultArr[temp_i][temp_i+q] = numOfuniqueInArr - count;
+                    resultArr[temp_i][temp_i+q] = numOfUniq - count;
                     count=0;
                     q++;
                 }
