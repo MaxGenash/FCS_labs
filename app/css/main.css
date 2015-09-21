@@ -1,0 +1,24 @@
+.matrix {
+    border-radius: 7px;
+    border-right: 1px solid black;
+    border-left: 1px solid black;
+    padding: 2px 15px;
+    display: inline-block;
+    max-width: 100%;
+}
+
+.matrix table {
+    margin: 0;
+}
+
+.matrix td.input-cell {
+    margin: 0;
+    padding: 0;
+}
+
+.matrix input {
+    text-align: center;
+    padding: 1px 3px;
+    width: 45px;
+    border: none;
+}

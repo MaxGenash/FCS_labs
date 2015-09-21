@@ -1,11 +1,140 @@
 <html>
-<head>
+<head lang="uk">
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Лабораторна робота з ГКС2 №1</title>
+    <meta name="description" content="Лабораторна робота з ГКС2 №1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- bower:css -->
     <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
     <!-- endbower -->
     <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
+    <div class="wraper">
+        <header>   <h1> Лабораторна робота з ГКС2 №1 </h1>   </header>
+
+        <main class="container-fluid">
+            <div class="row" id="lab1-block">
+                <div class="col-xs-12 col-md-6">
+                    <form name="lab1-inp-form" class="form-horizontal">
+                        <p> Оберіть необхідний вам розмір матриці:</p>
+                        <div class="form-group">
+                            <label for="inp-num-of-rows" class="col-sm-4 control-label">Кількість рядків:</label>
+                            <div class="col-sm-8">
+                                <select id="inp-num-of-rows" class="form-control">
+                                    <option value="2">2</option>
+                                    <option value="3" selected="selected">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                    <option value="7">7</option>
+                                    <option value="8">8</option>
+                                    <option value="9">9</option>
+                                    <option value="10">10</option>
+                                    <option value="11">11</option>
+                                    <option value="12">12</option>
+                                    <option value="13">13</option>
+                                    <option value="14">14</option>
+                                    <option value="15">15</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inp-num-of-cols" class="col-sm-4 control-label">Кількість Стовпців:</label>
+                            <div class="col-sm-8">
+                                <select id="inp-num-of-cols" class="form-control">
+                                    <option value="2">2</option>
+                                    <option value="3" selected>3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                    <option value="7">7</option>
+                                    <option value="8">8</option>
+                                    <option value="9">9</option>
+                                    <option value="10">10</option>
+                                    <option value="11">11</option>
+                                    <option value="12">12</option>
+                                    <option value="13">13</option>
+                                    <option value="14">14</option>
+                                    <option value="15">15</option>
+                                </select>
+                            </div>
+                        </div>
+                        <p>Введіть значення матриці:</p>
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <div class="matrix">
+                                    <div class="table-responsive">
+                                        <table class="table-bordered">
+                                            <tbody>
+                                            <!-- tr*3>td.input-cell*3>input[type="text",pattern="[a-z,A-Z,0-9,а-я,А-Я,і,ї]{0,4}",title="Введіть назви, що складаються з числел та букв довжиною до 4 символів"] -->
+                                            <tr>
+                                                <td class="input-cell"><input pattern="[a-z,A-Z,0-9,а-я,А-Я]{0,4}"
+                                                                              title="Введіть назви, що складаються з числел та букв довжиною до 4 символів"
+                                                                              type="text"/></td>
+                                                <td class="input-cell"><input pattern="[a-z,A-Z,0-9,а-я,А-Я]{0,4}"
+                                                                              title="Введіть назви, що складаються з числел та букв довжиною до 4 символів"
+                                                                              type="text"/></td>
+                                                <td class="input-cell"><input pattern="[a-z,A-Z,0-9,а-я,А-Я]{0,4}"
+                                                                              title="Введіть назви, що складаються з числел та букв довжиною до 4 символів"
+                                                                              type="text"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="input-cell"><input pattern="[a-z,A-Z,0-9,а-я,А-Я]{0,4}"
+                                                                              title="Введіть назви, що складаються з числел та букв довжиною до 4 символів"
+                                                                              type="text"/></td>
+                                                <td class="input-cell"><input pattern="[a-z,A-Z,0-9,а-я,А-Я]{0,4}"
+                                                                              title="Введіть назви, що складаються з числел та букв довжиною до 4 символів"
+                                                                              type="text"/></td>
+                                                <td class="input-cell"><input pattern="[a-z,A-Z,0-9,а-я,А-Я]{0,4}"
+                                                                              title="Введіть назви, що складаються з числел та букв довжиною до 4 символів"
+                                                                              type="text"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="input-cell"><input pattern="[a-z,A-Z,0-9,а-я,А-Я]{0,4}"
+                                                                              title="Введіть назви, що складаються з числел та букв довжиною до 4 символів"
+                                                                              type="text"/></td>
+                                                <td class="input-cell"><input pattern="[a-z,A-Z,0-9,а-я,А-Я]{0,4}"
+                                                                              title="Введіть назви, що складаються з числел та букв довжиною до 4 символів"
+                                                                              type="text"/></td>
+                                                <td class="input-cell"><input pattern="[a-z,A-Z,0-9,а-я,А-Я]{0,4}"
+                                                                              title="Введіть назви, що складаються з числел та букв довжиною до 4 символів"
+                                                                              type="text"/></td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <button type="submit" class="btn btn-default">Порахувати</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-xs-12 col-md-6 results-block">
+                    <p>Результат:</p>
+                    <div class="matrix">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered">
+                                <tbody>
+                                <tr>
+                                    <td><span class="matrix-result-cell">Тут буде матриця результатів</span></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer><p> Генаш Максим, Кайда Леонід &copy; 2015 </p></footer>
+    </div>
+
 
 
     <!-- bower:js -->
