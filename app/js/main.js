@@ -136,13 +136,13 @@
                 temp_i=i;
                 q = 1;
                 count = 0;
-                resultArr[i] = new Array(cols);
+                resultArr[i] = new Array(rows); //матриця результатів все-одно квадратна
                 while (i+q<rows){
                     for(j=0;j<cols;j++){
                         temp_j=j;
                         for(k=0;k<cols;k++){
                             if(( inpMatrix[temp_i][temp_j] === inpMatrix[temp_i+q][k] )&&(inpMatrix[temp_i][temp_j]!=''))
-                               break;
+                                break;
                             else if((k+1==cols)&&(inpMatrix[temp_i][temp_j]!=''))
                                 count++;
                         }
@@ -160,10 +160,12 @@
             }
 
             //дозаповнення матриці потрібними значеннями
-            for(i=0; i < rows; i++ ){
-                for(j=0; j < cols; j++ ){
-                    if( i === j) resultArr[i][j] = "-";
-                    if( resultArr[i][j] === undefined ) resultArr[i][j] = " ";
+            for(i=0; i < resultArr.length; i++ ){
+                for(j=0; j < resultArr[i].length; j++ ){
+                    if( i === j)
+                        resultArr[i][j] = "0";
+                    if( resultArr[i][j] === undefined )
+                        resultArr[i][j] = resultArr[j][i] ;
                 }
             }
             return resultArr;
