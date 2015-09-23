@@ -57,21 +57,24 @@
         },
 
         updateResult: function (opts) {
+            var rows, cols,
+                table,
+                i, j,
+                str = "";
+
             // setting default values
             if(!opts){
                 var resultsBlockArr = document.getElementsByClassName("results-block");
-                for(var i=0; i< resultsBlockArr.length; i++){
+                for(i=0; i< resultsBlockArr.length; i++){
                     resultsBlockArr[i].classList.add('hidden');
                 }
                 return;
             }
 
-            var rows = document.getElementById("inp-num-of-rows").value,
-                cols = document.getElementById("inp-num-of-cols").value,
-                table = opts.resultsBlock.getElementsByTagName("table")[0],
-                i, j,
-                str = "";
-
+            rows = document.getElementById("inp-num-of-rows").value;
+            cols = document.getElementById("inp-num-of-cols").value;
+            table = opts.resultsBlock.getElementsByTagName("table")[0];
+            document.getElementById("num-of-unique").innerText = opts.numOfUnique;
             table.innerHTML = "";
             opts.resultsBlock.classList.remove('hidden');
             for (i = 0; i < opts.resMatrix.length; i++) {
@@ -85,16 +88,19 @@
         },
 
         submitForm: function (e) {
-            var form = e.target;
+            var form = e.target,
+                inpArrOfStr = app.getForm1Inp(form);
             e.preventDefault();
 
             //if( !app.validate(form) ) return;
 
             app.updateResult({
                 resultsBlock: document.getElementsByClassName("results-block")[0],  ///!!!!! переробити на form.parentNode... сусідній results-block
-                resMatrix: app.solveForm1(  app.getForm1Inp(form)  )
+                resMatrix: app.solveForm1( inpArrOfStr ),
+                numOfUnique: app.numOfuniqueInArr( inpArrOfStr )
             });
         },
+
         getForm1Inp: function(form){
             var resultsSrtArr = [ ],
                 table = form.getElementsByTagName("table")[0],
@@ -162,6 +168,7 @@
             }
             return resultArr;
         },
+
         // кількість унікальних елементів у масиві будь-якої розмірності
         numOfuniqueInArr: function unique(arr) {
             var obj = {};   //допоміжний об'єкт, куди записуються елементи масиву як унікальні ключі
