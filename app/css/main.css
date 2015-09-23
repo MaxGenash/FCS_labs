@@ -1,3 +1,23 @@
+.btn:focus {
+    outline: none;
+}
+
+main {
+    min-height: calc(100% - 142px);
+}
+
+header h1{
+    font-family: cursive;
+    color: white;
+    font-weight: 300;
+    text-shadow: 1px 1px 1px black;
+}
+
+.control-label{
+    text-align: left !important;
+    font-weight: normal;
+}
+
 .matrix {
     border-radius: 7px;
     border-right: 1px solid black;
@@ -21,4 +41,17 @@
     padding: 1px 3px;
     width: 45px;
     border: none;
+}
+
+footer {
+    margin: 0 auto;
+}
+
+footer .navbar{
+    margin: 0 auto;
+}
+
+footer .text-center{
+    color: #777;
+    float: none;
 }
