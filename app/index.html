@@ -11,17 +11,21 @@
     <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
-    <div class="wraper">
-        <header>   <h1> Лабораторна робота з ГКС2 №1 </h1>   </header>
+    <div class="wrapper">
+        <header class="navbar navbar-default navbar-static-top">
+            <div class="container-fluid">
+                <h1 class="text-center"> Лабораторна робота з ГКС2 №1 </h1>
+            </div>
+        </header>
 
         <main class="container-fluid">
             <div class="row" id="lab1-block">
-                <div class="col-xs-12 col-md-6">
+                <div class="content-block input-block col-xs-12 col-md-6">
                     <form name="lab1-inp-form" class="form-horizontal">
-                        <p> Оберіть необхідний вам розмір матриці:</p>
+                        <strong> Оберіть необхідний вам розмір матриці:</strong>
                         <div class="form-group">
-                            <label for="inp-num-of-rows" class="col-sm-4 control-label">Кількість рядків:</label>
-                            <div class="col-sm-8">
+                            <label for="inp-num-of-rows" class="col-sm-6 control-label">Кількість рядків:</label>
+                            <div class="col-sm-6">
                                 <select id="inp-num-of-rows" class="form-control">
                                     <option value="2">2</option>
                                     <option value="3" selected>3</option>
@@ -41,8 +45,8 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="inp-num-of-cols" class="col-sm-4 control-label">Кількість Стовпців:</label>
-                            <div class="col-sm-8">
+                            <label for="inp-num-of-cols" class="col-sm-6 control-label"> Максимальна кількість стовпців:</label>
+                            <div class="col-sm-6">
                                 <select id="inp-num-of-cols" class="form-control">
                                     <option value="2">2</option>
                                     <option value="3" selected>3</option>
@@ -61,7 +65,7 @@
                                 </select>
                             </div>
                         </div>
-                        <p>Введіть значення матриці:</p>
+                        <strong>Введіть значення матриці:</strong>
                         <div class="form-group">
                             <div class="col-sm-12">
                                 <div class="matrix">
@@ -83,8 +87,10 @@
                         </div>
                     </form>
                 </div>
-                <div class="col-xs-12 col-md-6 results-block hidden">
-                    <p>Результат:</p>
+
+                <div class="content-block results-block col-xs-12 col-md-6 hidden">
+                    <p><strong>Кількість унікальних елементів: </strong><span id="num-of-unique">Тут буде кількість унікальних елементів</span></p>
+                    <p><strong>Матриця результатів:</strong></p>
                     <div class="matrix">
                         <div class="table-responsive">
                             <table class="table table-striped table-bordered">
@@ -100,7 +106,15 @@
             </div>
         </main>
 
-        <footer><p> Генаш Максим, Кайда Леонід &copy; 2015 </p></footer>
+        <footer>
+            <div class="navbar navbar-default">
+                <p class="navbar-text text-center">
+                    <a href="https://vk.com/max_genash" class="navbar-link">Генаш Максим</a>,
+                    <a href="https://vk.com/id26545201" class="navbar-link">Кайда Леонід</a>
+                    &copy; 2015
+                </p>
+            </div>
+        </footer>
     </div>
 
 

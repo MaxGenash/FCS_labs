@@ -1,3 +1,46 @@
+body {
+    font-family: 'Merriweather',serif;
+    font-size: 16px;
+}
+
+select, select.form-control{
+    width: auto;
+}
+
+.btn, .navbar, select, select.form-control {
+    border-radius: 0
+}
+
+.btn:focus {
+    outline: none;
+}
+
+main {
+    min-height: calc(100% - 142px);
+}
+
+header.navbar {
+    background-color: #455a64;
+}
+
+.navbar {
+    border: none;
+}
+
+header h1{
+    font-family: cursive;
+    color: #13daec;
+    font-weight: 300;
+    text-shadow: 0px 1px 0px #050058;
+    letter-spacing: -2px;
+    text-transform: uppercase;
+}
+
+.control-label{
+    text-align: left !important;
+    font-weight: normal;
+}
+
 .matrix {
     border-radius: 7px;
     border-right: 1px solid black;
@@ -22,3 +65,23 @@
     width: 45px;
     border: none;
 }
+
+footer {
+    margin: 0 auto;
+}
+
+footer .navbar {
+    border-top: 1px solid rgba(64, 83, 93, 0.2);
+    background-color: #eceff1;
+    margin: 0 auto;
+}
+
+footer .navbar .text-center{
+    color: #455a64; 
+    float: none;
+}
+
+.navbar-link {
+    color: #455a64 !important;
+}
+
