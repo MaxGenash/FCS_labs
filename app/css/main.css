@@ -42,9 +42,6 @@ header h1{
 }
 
 .matrix {
-    border-radius: 7px;
-    border-right: 1px solid black;
-    border-left: 1px solid black;
     padding: 2px 15px;
     display: inline-block;
     max-width: 100%;
@@ -54,9 +51,16 @@ header h1{
     margin: 0;
 }
 
+.matrix th {
+    background-color: #d9edf7;
+    text-align: center;
+    padding: 8px;
+}
+
 .matrix td.input-cell {
     margin: 0;
     padding: 0;
+    vertical-align: middle;
 }
 
 .matrix input {
@@ -64,6 +68,7 @@ header h1{
     padding: 1px 3px;
     width: 45px;
     border: none;
+    background-color: transparent;
 }
 
 footer {
