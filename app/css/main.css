@@ -19,6 +19,10 @@ main {
     min-height: calc(100% - 142px);
 }
 
+.results-block{
+    margin-bottom: 15px;
+}
+
 header.navbar {
     background-color: #455a64;
 }
@@ -90,3 +94,9 @@ footer .navbar .text-center{
     color: #455a64 !important;
 }
 
+@media (max-width: 768px) {
+    .results-block{
+        border-top: 1px dotted gray;
+        padding-top: 10px;
+    }
+}
