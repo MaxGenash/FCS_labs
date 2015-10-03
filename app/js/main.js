@@ -34,21 +34,36 @@
             if(initialMatrix && initialMatrix instanceof Array){
                 rows = document.getElementById("inp-num-of-rows").value = initialMatrix.length;
                 cols = document.getElementById("inp-num-of-cols").value = initialMatrix[0].length;
-                for (i = 0; i < rows; i++) {
+                for (i = 0; i <= rows; i++) {
                     str += "<tr>";
-                    for (j = 0; j < cols; j++) {
-                        var inpVal = (initialMatrix[i] && initialMatrix[i][j]) ? initialMatrix[i][j] : "" ;
-                        str += ('<td class="input-cell"> <input type="text" pattern="[\\w,а-я,А-Я,і,ї]{0,4}" title="Введіть назви, що складаються з числел та букв довжиною до 4 символів" value="' + inpVal  + '">' + '</td>');
+                    for (j = 0; j <= cols; j++) {
+                        if(i===0 && j===0)
+                            str += ('<th> № </th>');
+                        else if(j===0)
+                            str += ('<th>' + i + '</th>');
+                        else if(i===0)
+                            str += ('<th>' + j + '</th>');
+                        else{
+                            var inpVal = (initialMatrix[i-1] && initialMatrix[i-1][j-1]) ? initialMatrix[i-1][j-1] : "" ;
+                            str += ('<td class="input-cell"> <input type="text" pattern="[\\w,а-я,А-Я,і,ї]{0,4}" title="Введіть назви, що складаються з числел та букв довжиною до 4 символів" value="' + inpVal  + '">' + '</td>');
+                        }
                     }
                     str += "</tr>";
                 }
             } else {
                 rows = document.getElementById("inp-num-of-rows").value;
                 cols = document.getElementById("inp-num-of-cols").value;
-                for (i = 0; i < rows; i++) {
+                for (i = 0; i <= rows; i++) {
                     str += "<tr>";
-                    for (j = 0; j < cols; j++) {
-                        str += ('<td class="input-cell"> <input type="text" pattern="[\\w,а-я,А-Я,і,ї]{0,4}" title="Введіть назви, що складаються з числел та букв довжиною до 4 символів">' + '</td>');
+                    for (j = 0; j <= cols; j++) {
+                        if(i===0 && j===0)
+                            str += ('<th> № </th>');
+                        else if(j===0)
+                            str += ('<th>' + i + '</th>');
+                        else if(i===0)
+                            str += ('<th>' + j + '</th>');
+                        else
+                            str += ('<td class="input-cell"> <input type="text" pattern="[\\w,а-я,А-Я,і,ї]{0,4}" title="Введіть назви, що складаються з числел та букв довжиною до 4 символів">' + '</td>');
                     }
                     str += "</tr>";
                 }
@@ -77,10 +92,18 @@
             document.getElementById("num-of-unique").innerText = opts.numOfUnique;
             table.innerHTML = "";
             opts.resultsBlock.classList.remove('hidden');
-            for (i = 0; i < opts.resMatrix.length; i++) {
+            for (i = 0; i <= opts.resMatrix.length; i++) {
                 str += "<tr>";
-                for (j = 0; j < opts.resMatrix[i].length; j++) {
-                    str += '<td><span class="matrix-result-cell">'+ opts.resMatrix[i][j] +'</span></td>';
+                //матриця результатів квадратна
+                for (j = 0; j <= opts.resMatrix.length; j++) {
+                    if(i===0 && j===0)
+                        str += ('<th> № </th>');
+                    else if(j===0)
+                        str += ('<th>' + i + '</th>');
+                    else if(i===0)
+                        str += ('<th>' + j + '</th>');
+                    else
+                        str += '<td><span class="matrix-result-cell">'+ opts.resMatrix[i-1][j-1] +'</span></td>';
                 }
                 str += "</tr>";
             }
@@ -106,11 +129,12 @@
                 table = form.getElementsByTagName("table")[0],
                 i, j;
 
-            for( i=0; i< table.rows.length; i++){
+            //нумерація з 1 бо в 0 у нас номери рядків і стовпців збкрігаються
+            for( i=1; i < table.rows.length; i++){
                 resultsSrtArr.push( [ ] );
-                for( j=0; j< table.rows[i].childElementCount; j++){
+                for( j=1; j < table.rows[i].childElementCount; j++){
                     var inpVal = table.rows[i].cells[j].getElementsByTagName("input")[0].value;
-                    resultsSrtArr[i].push( inpVal );
+                    resultsSrtArr[i-1].push( inpVal );
                 }
             }
 
