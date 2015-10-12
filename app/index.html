@@ -2,8 +2,8 @@
 <head lang="uk">
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>Лабораторна робота з ГКС2 №1</title>
-    <meta name="description" content="Лабораторна робота з ГКС2 №1">
+    <title>Лабораторна робота з ГКС2 №2</title>
+    <meta name="description" content="Лабораторна робота з ГКС2 №2">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- bower:css -->
     <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
@@ -14,7 +14,7 @@
     <div class="wrapper">
         <header class="navbar navbar-default navbar-static-top">
             <div class="container-fluid">
-                <h1 class="text-center"> Лабораторна робота з ГКС2 №1 </h1>
+                <h1 class="text-center"> Лабораторна робота з ГКС2 №2 </h1>
             </div>
         </header>
 
@@ -68,7 +68,7 @@
                         <strong>Введіть значення матриці:</strong>
                         <div class="form-group">
                             <div class="col-sm-12">
-                                <div class="matrix">
+                                <div class="matrix inp-matrix" id="inp-matrix-1">
                                     <div class="table-responsive">
                                         <table class="table table-striped table-bordered">
                                             <tbody>
@@ -91,7 +91,7 @@
                 <div class="content-block results-block col-xs-12 col-md-6 hidden">
                     <p><strong>Кількість унікальних елементів: </strong><span id="num-of-unique">Тут буде кількість унікальних елементів</span></p>
                     <p><strong>Матриця результатів:</strong></p>
-                    <div class="matrix">
+                    <div class="matrix res-matrix" id="res-matrix-1">
                         <div class="table-responsive">
                             <table class="table table-striped table-bordered">
                                 <tbody>
@@ -101,6 +101,13 @@
                                 </tbody>
                             </table>
                         </div>
+                    </div>
+                </div>
+
+				<div class="content-block results-block col-xs-12 col-md-6 hidden">
+                    <p><strong>Групи елементів:</strong></p>
+                    <div class="groups-block" id="groups-block-1">
+						Тут будуть групи елементів
                     </div>
                 </div>
             </div>
@@ -117,12 +124,10 @@
         </footer>
     </div>
 
-
-
     <!-- bower:js -->
     <script src="bower_components/jquery/dist/jquery.js"></script>
     <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
     <!-- endbower -->
-    <script src="js/main.js"></script>
+    <script src="js/all.js"></script>
 </body>
 </html>
