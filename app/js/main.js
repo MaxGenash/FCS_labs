@@ -1,11 +1,15 @@
-//написати віджет matrix
-//написати ф-цію що рахуватими кількість стовпців у матриці замість arr[0].length
+'use strict';
+
+import InpMatrix from './InpMatrix.class.js';
+import ResMatrix from './ResMatrix.class.js';
+
+
 (function() {
     var app = {
 
         initialize: function () {
             this.form1 = document.forms["lab1-inp-form"];
-            this.initialMatrix1 = [
+            let initialMatrix1 = [
                 ["T1", "T2", "T3", "C1", "C2"],
                 ["T2", "T3", "C1"],
                 ["T4", "T5", "T3", "C3"],
@@ -14,7 +18,7 @@
             ];
             this.setUpListeners();
             this.updateResult();
-            this.updateInpMatrix( this.initialMatrix1 );
+            this.updateInpMatrix( initialMatrix1 );
         },
 
         setUpListeners: function () {
@@ -24,67 +28,77 @@
         },
 
         updateInpMatrix: function(initialMatrix) {
-            var table = app.form1.getElementsByTagName("table")[0],
-                rows,
-                cols,
-                i, j,
-                str = "";
-
-            table.innerHTML = "";
+            let inpMatrix;
             if(initialMatrix && initialMatrix instanceof Array){
-                rows = document.getElementById("inp-num-of-rows").value = initialMatrix.length;
-                cols = document.getElementById("inp-num-of-cols").value = initialMatrix[0].length;
-                for (i = 0; i < rows; i++) {
-                    str += "<tr>";
-                    for (j = 0; j < cols; j++) {
-                        var inpVal = (initialMatrix[i] && initialMatrix[i][j]) ? initialMatrix[i][j] : "" ;
-                        str += ('<td class="input-cell"> <input type="text" pattern="[\\w,а-я,А-Я,і,ї]{0,4}" title="Введіть назви, що складаються з числел та букв довжиною до 4 символів" value="' + inpVal  + '">' + '</td>');
-                    }
-                    str += "</tr>";
-                }
+                inpMatrix = new InpMatrix({
+                    items: initialMatrix
+                });
+                document.getElementById("inp-num-of-rows").value = inpMatrix.rows;
+                document.getElementById("inp-num-of-cols").value = inpMatrix.cols;
             } else {
-                rows = document.getElementById("inp-num-of-rows").value;
-                cols = document.getElementById("inp-num-of-cols").value;
-                for (i = 0; i < rows; i++) {
-                    str += "<tr>";
-                    for (j = 0; j < cols; j++) {
-                        str += ('<td class="input-cell"> <input type="text" pattern="[\\w,а-я,А-Я,і,ї]{0,4}" title="Введіть назви, що складаються з числел та букв довжиною до 4 символів">' + '</td>');
-                    }
-                    str += "</tr>";
-                }
+                let rows = document.getElementById("inp-num-of-rows").value;
+                let cols = document.getElementById("inp-num-of-cols").value;
+                inpMatrix = new InpMatrix({
+                    rows: rows,
+                    cols: cols
+                });
             }
-            table.innerHTML = str;
+
+            document.getElementById("inp-matrix-1").innerHTML =  inpMatrix.getElem().innerHTML;
         },
 
         updateResult: function (opts) {
             var rows, cols,
-                table,
-                i, j,
-                str = "";
+                i, j;
 
-            // setting default values
+            let resultsBlock = document.getElementsByClassName("results-block");
             if(!opts){
-                var resultsBlockArr = document.getElementsByClassName("results-block");
-                for(i=0; i< resultsBlockArr.length; i++){
-                    resultsBlockArr[i].classList.add('hidden');
+                //ховаємо блоки з результатами
+                for(i=0; i< resultsBlock.length; i++){
+                    resultsBlock[i].classList.add('hidden');
                 }
                 return;
+            } else {
+                //Показуємо блоки з результатами
+                for(i=0; i< resultsBlock.length; i++){
+                    resultsBlock[i].classList.remove('hidden');
+                }
+                rows = document.getElementById("inp-num-of-rows").value;
+                cols = document.getElementById("inp-num-of-cols").value;
             }
 
-            rows = document.getElementById("inp-num-of-rows").value;
-            cols = document.getElementById("inp-num-of-cols").value;
-            table = opts.resultsBlock.getElementsByTagName("table")[0];
+            //Виводимо перші результати
+            let resMatrix1 = new ResMatrix({
+                items: opts.initialMatrix,
+                rows: rows,
+                cols: rows      //важливо, бо матриця кваджратна
+            });
+
             document.getElementById("num-of-unique").innerText = opts.numOfUnique;
-            table.innerHTML = "";
-            opts.resultsBlock.classList.remove('hidden');
-            for (i = 0; i < opts.resMatrix.length; i++) {
-                str += "<tr>";
-                for (j = 0; j < opts.resMatrix[i].length; j++) {
-                    str += '<td><span class="matrix-result-cell">'+ opts.resMatrix[i][j] +'</span></td>';
-                }
-                str += "</tr>";
+            document.getElementById("res-matrix-1").innerHTML =  resMatrix1.getElem().innerHTML;
+
+            //Виводимо другі результати
+            let groupsBlock1 = document.getElementById("groups-block-1"),
+                str = `<table class='table table-bordered groups'>
+                           <tr>
+                               <th> № </th>
+                               <th> Елементи групи </th>
+                           </tr>`;
+            for(i=0; i< opts.groups.length; i++){
+                j=0;
+                str += `<tr> <th>${ i+1 }</th><td>`;
+                opts.groups[i].forEach(function (value){
+                    if(j === (opts.groups[i].size-1)){
+                        str += (value + 1);  //value+1 бо нумерація з 0, а для користувача це не зручно
+                    } else {
+                        str += ((value + 1) + ", ");
+                    }
+                    j++;
+                });
+                str += `</td></tr>`;
             }
-            table.innerHTML = str;
+            str += "</table>";
+            groupsBlock1.innerHTML = str;
         },
 
         submitForm: function (e) {
@@ -94,10 +108,14 @@
 
             //if( !app.validate(form) ) return;
 
+            var resMatrix1 = app.solveForm1( inpArrOfStr ),
+                groups1 = app.calcMatrix2( resMatrix1 ),
+                numOfUnique = app.getArrOfUniqueVals(inpArrOfStr).length;
+
             app.updateResult({
-                resultsBlock: document.getElementsByClassName("results-block")[0],  ///!!!!! переробити на form.parentNode... сусідній results-block
-                resMatrix: app.solveForm1( inpArrOfStr ),
-                numOfUnique: app.numOfuniqueInArr( inpArrOfStr )
+                initialMatrix: resMatrix1,
+                groups: groups1,
+                numOfUnique: numOfUnique
             });
         },
 
@@ -106,11 +124,12 @@
                 table = form.getElementsByTagName("table")[0],
                 i, j;
 
-            for( i=0; i< table.rows.length; i++){
+            //нумерація з 1 бо в 0 у нас номери рядків і стовпців збкрігаються
+            for( i=1; i < table.rows.length; i++){
                 resultsSrtArr.push( [ ] );
-                for( j=0; j< table.rows[i].childElementCount; j++){
+                for( j=1; j < table.rows[i].childElementCount; j++){
                     var inpVal = table.rows[i].cells[j].getElementsByTagName("input")[0].value;
-                    resultsSrtArr[i].push( inpVal );
+                    resultsSrtArr[i-1].push( inpVal );
                 }
             }
 
@@ -129,7 +148,7 @@
                 rows = inpMatrix.length,                     //максимальна кількість рядків
                 cols = inpMatrix[0].length,                  //максимальна кількість стовпців
                 resultArr = new Array( inpMatrix.length),
-                numOfUniq = app.numOfuniqueInArr(inpMatrix); //кількість унікальних елементів матриці
+                numOfUniq = app.getArrOfUniqueVals(inpMatrix).length ; //кількість унікальних елементів матриці
 
             //Алгоритм обрахунку матриці співпадінь
             for(i = 0;i < rows; i++){
@@ -141,15 +160,15 @@
                     for(j=0;j<cols;j++){
                         temp_j=j;
                         for(k=0;k<cols;k++){
-                            if(( inpMatrix[temp_i][temp_j] === inpMatrix[temp_i+q][k] )&&(inpMatrix[temp_i][temp_j]!=''))
+                            if(( inpMatrix[temp_i][temp_j] === inpMatrix[temp_i+q][k] )&&(inpMatrix[temp_i][temp_j] !== ''))
                                 break;
-                            else if((k+1==cols)&&(inpMatrix[temp_i][temp_j]!=''))
+                            else if((k+1==cols)&&(inpMatrix[temp_i][temp_j]!==''))
                                 count++;
                         }
                         for(k=0;k<cols;k++){
-                            if(( inpMatrix[temp_i+q][temp_j] === inpMatrix[temp_i][k] )&&(inpMatrix[temp_i+q][temp_j]!=''))
+                            if(( inpMatrix[temp_i+q][temp_j] === inpMatrix[temp_i][k] )&&(inpMatrix[temp_i+q][temp_j]!==''))
                                 break;
-                            else if((k+1==cols)&&(inpMatrix[temp_i+q][temp_j]!=''))
+                            else if((k+1==cols)&&(inpMatrix[temp_i+q][temp_j]!==''))
                                 count++;
                         }
                     }
@@ -172,13 +191,13 @@
         },
 
         // кількість унікальних елементів у масиві будь-якої розмірності
-        numOfuniqueInArr: function unique(arr) {
+        getArrOfUniqueVals: function unique(arr) {
             var obj = {};   //допоміжний об'єкт, куди записуються елементи масиву як унікальні ключі
 
             (function writeInObjUniqueVal(arr){
                 if(arr.length === 0) return 0;
 
-                arr.forEach(function(item, i, arr){
+                arr.forEach(function(item){
                     if(item instanceof Array){
                         writeInObjUniqueVal(item);
                         return 0;   //коли пройдемо по всіх елементах масива, щоб сам цей масив не записало як ключ
@@ -190,14 +209,124 @@
                 });
             }(arr));
 
-            return Object.keys(obj).length;
+            return Object.keys(obj);
         },
 
-        //метод для валідації форми поки не використовується
-        validateForm: function(form) {
-            return true;
+        colsInMatrix: function(matrix){
+            var max = matrix[0].length;
+            for(var i = 1; i< matrix.length; i++){
+                if(matrix[i].length > max)
+                    max = matrix[i].length;
+                }
+            return max;
+
+            //   return matrix.reduce(function(max, current, index, arr){
+            //		if(index === 0) return current.length;
+            //        return (current.length > max) ? current.length : max;
+            //    });
+        },
+
+        calcMatrix2: function(arr){
+            let fullSet = new Set(),	//множина з усіма елементами в усіх вже заповнених групах(треба щоб запобігати повторів у кожній групі)
+                resultsArr = [],
+                size = arr.length;		//скільки може бути елементів в групах
+
+            //заповнюємо чергу із елементів у нижньому трикутнику та їх індексів
+            let sortedQueue = [];
+            for(let i = 0; i < arr.length; i++){
+                for(let j = 0; j < arr[i].length; j++){
+                    //якщо кінець рядка нижнього трикутника(i == j), переходимо на інший рядок
+                    if(i == j)	break;
+                    sortedQueue.push({ val:arr[i][j],	x:i,	y:j });
+                }
+            }
+            //сортуємо щоб потім перебирати із найбільших елементів до найменших
+            sortedQueue.sort(function(a, b){ return a.val > b.val; });
+
+            //ділимо на групи поки ще є елементи
+            while(size){
+                if(!sortedQueue.length)	//якщо закінчились елементи в черзі - групи зформовані
+                    break;
+
+                let currentGroup = new Set(),	//поточна група
+                    x, y, 						//позиція максимального елемента
+                    el = sortedQueue.pop();		//дістаємо останній максимальний елемент з черги
+
+                //якщо залишилось 2, або 1 елемент - це вже завжди остання група
+                if(size <= 2){
+                    for(let i = 0; i < arr.length; i++ ){
+                        if(!fullSet.has(i)){
+                            currentGroup.add(i);
+                            fullSet.add(i);
+                            --size;
+                        }
+                    }
+                    resultsArr.push(currentGroup);
+                    break;
+                }
+
+                //якщо № рядка і стовпця вже є в множині - переходимо до наступної ітерації
+                //(переходимо до наступного елемента в черзі sortedQueue)...
+                if(fullSet.has(el.x) && fullSet.has(el.y))
+                    continue;
+
+                //...інакше додаємо в поточну групу і в загальну множину № рядка і/або стовпця
+                if(!fullSet.has(el.x)){
+                    currentGroup.add(el.x);
+                    fullSet.add(el.x);
+                    --size;
+                }
+                if(!fullSet.has(el.y)){
+                    currentGroup.add(el.y);
+                    fullSet.add(el.y);
+                    --size;
+                }
+
+                //пробігаємо по Рядку, додаючи № стовпців елементів, що дорівнюють поточному, в групу
+                for(let i = 0; i < arr[el.x].length; i++){
+                    let item = arr[el.x][i];
+                    if( item === el.val && !fullSet.has(i) && (i !== el.y) ){
+                        currentGroup.add(i);
+                        fullSet.add(i);
+                        --size;
+                    }
+                }
+                //пробігаємо по Стовпцю, додаючи № рядків елементів, що дорівнюють поточному, в групу
+                for(let i = 0; i < arr.length; i++){
+                    let item = arr[i][el.y];
+                    if(item === el.val && !fullSet.has(i) && (i !== el.x) ){
+                        currentGroup.add(i);
+                        fullSet.add(i);
+                        --size;
+                    }
+                }
+
+                resultsArr.push(currentGroup);
+            }
+
+            return resultsArr;
         }
     };
 
     app.initialize();
+
+    console.log( app.calcMatrix2([
+        [0,7,6,4,9,6,7],
+        [7,0,7,5,7,5,4],
+        [6,7,0,9,7,2,5],
+        [4,5,9,0,6,1,3],
+        [9,7,7,6,0,3,2],
+        [6,5,2,1,3,0,1],
+        [7,4,5,3,2,1,0]
+    ]));
+    console.log( app.calcMatrix2([
+        [0,7,6,4,7,6,7],
+        [7,0,7,5,7,5,4],
+        [6,7,0,7,7,2,5],
+        [4,5,7,0,6,1,3],
+        [7,7,7,6,0,7,2],
+        [6,5,2,1,7,0,1],
+        [7,4,5,3,2,1,0]
+    ]));
+
 }() );

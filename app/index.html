@@ -2,8 +2,8 @@
 <head lang="uk">
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>Лабораторна робота з ГКС2 №1</title>
-    <meta name="description" content="Лабораторна робота з ГКС2 №1">
+    <title>Лабораторна робота з ГКС2 №2</title>
+    <meta name="description" content="Лабораторна робота з ГКС2 №2">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- bower:css -->
     <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
@@ -11,120 +11,128 @@
     <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
-    <div class="wrapper">
-        <header class="navbar navbar-default navbar-static-top">
-            <div class="container-fluid">
-                <h1 class="text-center"> Лабораторна робота з ГКС2 №1 </h1>
-            </div>
-        </header>
+<noscript class="no_script_message">
+    У вас вимкнено JavaScript. Сайт не зможе працювати коректно. <br>
+    Будь ласка, ввімкніть JavaScript у налаштуваннях браузера, або завантажте сучасний браузер.
+</noscript>
 
-        <main class="container-fluid">
+<div class="wrapper">
+    <header class="navbar navbar-default navbar-static-top">
+        <div class="container-fluid">
+            <h1 class="text-center"> Лабораторна робота з ГКС2 №2 </h1>
+        </div>
+    </header>
 
-            <div class="row" id="lab1-block">
-                <div class="col-xs-12 col-md-6">
-                    <form name="lab1-inp-form" class="form-horizontal">
-                        <strong> Оберіть необхідний вам розмір матриці:</strong>
-                        <div class="form-group">
-                            <label for="inp-num-of-rows" class="col-sm-6 control-label">Кількість рядків:</label>
-                            <div class="col-sm-6">
-                                <select id="inp-num-of-rows" class="form-control">
-                                    <option value="2">2</option>
-                                    <option value="3" selected>3</option>
-                                    <option value="4">4</option>
-                                    <option value="5">5</option>
-                                    <option value="6">6</option>
-                                    <option value="7">7</option>
-                                    <option value="8">8</option>
-                                    <option value="9">9</option>
-                                    <option value="10">10</option>
-                                    <option value="11">11</option>
-                                    <option value="12">12</option>
-                                    <option value="13">13</option>
-                                    <option value="14">14</option>
-                                    <option value="15">15</option>
-                                </select>
-                            </div>
+    <main class="container-fluid">
+        <div class="row" id="lab1-block">
+            <div class="content-block input-block col-xs-12 col-md-6">
+                <form name="lab1-inp-form" class="form-horizontal">
+                    <strong> Оберіть необхідний вам розмір матриці:</strong>
+                    <div class="form-group">
+                        <label for="inp-num-of-rows" class="col-sm-6 control-label">Кількість рядків:</label>
+                        <div class="col-sm-6">
+                            <select id="inp-num-of-rows" class="form-control">
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5" selected>5</option>
+                                <option value="6">6</option>
+                                <option value="7">7</option>
+                                <option value="8">8</option>
+                                <option value="9">9</option>
+                                <option value="10">10</option>
+                                <option value="11">11</option>
+                                <option value="12">12</option>
+                                <option value="13">13</option>
+                                <option value="14">14</option>
+                                <option value="15">15</option>
+                            </select>
                         </div>
-                        <div class="form-group">
-                            <label for="inp-num-of-cols" class="col-sm-6 control-label"> Максимальна кількість стовпців:</label>
-                            <div class="col-sm-6">
-                                <select id="inp-num-of-cols" class="form-control">
-                                    <option value="2">2</option>
-                                    <option value="3" selected>3</option>
-                                    <option value="4">4</option>
-                                    <option value="5">5</option>
-                                    <option value="6">6</option>
-                                    <option value="7">7</option>
-                                    <option value="8">8</option>
-                                    <option value="9">9</option>
-                                    <option value="10">10</option>
-                                    <option value="11">11</option>
-                                    <option value="12">12</option>
-                                    <option value="13">13</option>
-                                    <option value="14">14</option>
-                                    <option value="15">15</option>
-                                </select>
-                            </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inp-num-of-cols" class="col-sm-6 control-label"> Максимальна кількість стовпців:</label>
+                        <div class="col-sm-6">
+                            <select id="inp-num-of-cols" class="form-control">
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5" selected>5</option>
+                                <option value="6">6</option>
+                                <option value="7">7</option>
+                                <option value="8">8</option>
+                                <option value="9">9</option>
+                                <option value="10">10</option>
+                                <option value="11">11</option>
+                                <option value="12">12</option>
+                                <option value="13">13</option>
+                                <option value="14">14</option>
+                                <option value="15">15</option>
+                            </select>
                         </div>
-                        <strong>Введіть значення матриці:</strong>
-                        <div class="form-group">
-                            <div class="col-sm-12">
-                                <div class="matrix">
-                                    <div class="table-responsive">
-                                        <table class="table-bordered">
-                                            <tbody>
-                                            <!-- tr*3>td.input-cell*3>input[type="text",pattern="[a-z,A-Z,0-9,а-я,А-Я,і,ї]{0,4}",title="Введіть назви, що складаються з числел та букв довжиною до 4 символів"] -->
+                    </div>
+                    <strong>Введіть значення матриці:</strong>
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <div class="matrix inp-matrix" id="inp-matrix-1">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-bordered">
+                                        <tbody>
+                                        <!-- tr*3>td.input-cell*3>input[type="text",pattern="[a-z,A-Z,0-9,а-я,А-Я,і,ї]{0,4}",title="Введіть назви, що складаються з числел та букв довжиною до 4 символів"] -->
 
-                                            </tbody>
-                                        </table>
-                                    </div>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <div class="col-sm-12">
-                                <button type="submit" class="btn btn-default">Порахувати</button>
-                            </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <button type="submit" class="btn btn-default">Порахувати</button>
                         </div>
-                    </form>
-                </div>
-                <div class="col-xs-12 col-md-6 results-block hidden">
-                    <p><strong>Кількість унікальних елементів: </strong><span id="num-of-unique">Тут буде кількість унікальних елементів</span></p>
+                    </div>
+                </form>
+            </div>
 
-                    <p><strong>Матриця результатів:</strong></p>
-                    <div class="matrix">
-                        <div class="table-responsive">
-                            <table class="table table-striped table-bordered">
-                                <tbody>
-                                <tr>
-                                    <td><span class="matrix-result-cell">Тут буде матриця результатів</span></td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div>
+            <div class="content-block results-block col-xs-12 col-md-6 hidden">
+                <p><strong>Кількість унікальних елементів: </strong><span id="num-of-unique">Тут буде кількість унікальних елементів</span></p>
+                <p><strong>Матриця результатів:</strong></p>
+                <div class="matrix res-matrix" id="res-matrix-1">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered">
+                            <tbody>
+                            <tr>
+                                <td><span class="matrix-result-cell">Тут буде матриця результатів</span></td>
+                            </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
 
-        </main>
-
-        <footer>
-            <div class="navbar navbar-default">
-                <p class="navbar-text text-center">
-                    <a href="https://vk.com/max_genash" class="navbar-link">Генаш Максим</a>,
-                    <a href="https://vk.com/id26545201" class="navbar-link">Кайда Леонід</a>
-                    &copy; 2015
-                </p>
+            <div class="content-block results-block col-xs-12 col-md-6 hidden">
+                <p><strong>Групи елементів:</strong></p>
+                <div class="groups-block" id="groups-block-1">
+                    Тут будуть групи елементів
+                </div>
             </div>
-        </footer>
-    </div>
+        </div>
+    </main>
 
-                       
+    <footer>
+        <div class="navbar navbar-default">
+            <p class="navbar-text text-center">
+                <a href="https://vk.com/max_genash" class="navbar-link">Генаш Максим</a>,
+                <a href="https://vk.com/id26545201" class="navbar-link">Кайда Леонід</a>
+                &copy; 2015
+            </p>
+        </div>
+    </footer>
+</div>
 
-    <!-- bower:js -->
-    <script src="bower_components/jquery/dist/jquery.js"></script>
-    <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
-    <!-- endbower -->
-    <script src="js/main.js"></script>
+<!-- bower:js -->
+<script src="bower_components/jquery/dist/jquery.js"></script>
+<script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+<!-- endbower -->
+<script src="js/all.js"></script>
 </body>
 </html>

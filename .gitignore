@@ -3,6 +3,7 @@
 nodemon-ignore
 node_modules
 bower_components
+dist
 *.swp
 
 # Logs
