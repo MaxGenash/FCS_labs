@@ -148,15 +148,15 @@ import ResMatrix from './ResMatrix.class.js';
                     for(j=0;j<cols;j++){
                         temp_j=j;
                         for(k=0;k<cols;k++){
-                            if(( inpMatrix[temp_i][temp_j] === inpMatrix[temp_i+q][k] )&&(inpMatrix[temp_i][temp_j]!=''))
+                            if(( inpMatrix[temp_i][temp_j] === inpMatrix[temp_i+q][k] )&&(inpMatrix[temp_i][temp_j] !== ''))
                                 break;
-                            else if((k+1==cols)&&(inpMatrix[temp_i][temp_j]!=''))
+                            else if((k+1==cols)&&(inpMatrix[temp_i][temp_j]!==''))
                                 count++;
                         }
                         for(k=0;k<cols;k++){
-                            if(( inpMatrix[temp_i+q][temp_j] === inpMatrix[temp_i][k] )&&(inpMatrix[temp_i+q][temp_j]!=''))
+                            if(( inpMatrix[temp_i+q][temp_j] === inpMatrix[temp_i][k] )&&(inpMatrix[temp_i+q][temp_j]!==''))
                                 break;
-                            else if((k+1==cols)&&(inpMatrix[temp_i+q][temp_j]!=''))
+                            else if((k+1==cols)&&(inpMatrix[temp_i+q][temp_j]!==''))
                                 count++;
                         }
                     }
