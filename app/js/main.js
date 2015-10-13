@@ -200,6 +200,20 @@ import ResMatrix from './ResMatrix.class.js';
             return Object.keys(obj);
         },
 
+        colsInMatrix: function(matrix){
+            var max = matrix[0].length;
+            for(var i = 1; i< matrix.length; i++){
+                if(matrix[i].length > max)
+                    max = matrix[i].length;
+                }
+            return max;
+
+            //   return matrix.reduce(function(max, current, index, arr){
+            //		if(index === 0) return current.length;
+            //        return (current.length > max) ? current.length : max;
+            //    });
+        },
+
         calcMatrix2: function(arr){
             let fullSet = new Set(),	//множина з усіма елементами в усіх вже заповнених групах(треба щоб запобігати повторів у кожній групі)
                 resultsArr = [],
