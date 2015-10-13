@@ -33,7 +33,7 @@ import ResMatrix from './ResMatrix.class.js';
                 inpMatrix = new InpMatrix({
                     items: initialMatrix
                 });
-				document.getElementById("inp-num-of-rows").value = inpMatrix.rows;
+                document.getElementById("inp-num-of-rows").value = inpMatrix.rows;
                 document.getElementById("inp-num-of-cols").value = inpMatrix.cols;
             } else {
                 let rows = document.getElementById("inp-num-of-rows").value;
@@ -51,31 +51,42 @@ import ResMatrix from './ResMatrix.class.js';
             var rows, cols,
                 i;
 
-			let resultsBlock = document.getElementsByClassName("results-block");
-			if(!opts){
+            let resultsBlock = document.getElementsByClassName("results-block");
+            if(!opts){
                 //ховаємо блоки з результатами
-				for(i=0; i< resultsBlock.length; i++){
-					resultsBlock[i].classList.add('hidden');
-				}
-				return;
-			} else {
+                for(i=0; i< resultsBlock.length; i++){
+                    resultsBlock[i].classList.add('hidden');
+                }
+                return;
+            } else {
                 //Показуємо блоки з результатами
                 for(i=0; i< resultsBlock.length; i++){
-					resultsBlock[i].classList.remove('hidden');
-				}
+                    resultsBlock[i].classList.remove('hidden');
+                }
                 rows = document.getElementById("inp-num-of-rows").value;
                 cols = document.getElementById("inp-num-of-cols").value;
-			}
+            }
 
-			//Виводимо перші результати
-			let resMatrix1 = new ResMatrix({
+            //Виводимо перші результати
+            let resMatrix1 = new ResMatrix({
                 items: opts.initialMatrix,
                 rows: rows,
                 cols: rows      //важливо, бо матриця кваджратна
             });
 
-			document.getElementById("num-of-unique").innerText = opts.numOfUnique;
+            document.getElementById("num-of-unique").innerText = opts.numOfUnique;
             document.getElementById("res-matrix-1").innerHTML =  resMatrix1.getElem().innerHTML;
+
+            //Виводимо другі результати
+            var groupsBlock1 = document.getElementById("groups-block-1"),
+                str = "<table class='table table-bordered groups'>";
+            for(i=0; i< opts.groups.length; i++){
+                str += "<tr> ";
+                opts.groups[i].forEach( value => str += (`<td> ${value+1} </td>`) );	//value+1 бо нумерація з 0, а для користувача це не зручно
+                str += "<tr>";
+            }
+            str += "</table>";
+            groupsBlock1.innerHTML = str;
         },
 
         submitForm: function (e) {
@@ -85,11 +96,13 @@ import ResMatrix from './ResMatrix.class.js';
 
             //if( !app.validate(form) ) return;
 
-			var resMatrix1 = app.solveForm1( inpArrOfStr ),
-				numOfUnique = app.getArrOfUniqueVals(inpArrOfStr).length;
+            var resMatrix1 = app.solveForm1( inpArrOfStr ),
+                groups1 = app.calcMatrix2( resMatrix1 ),
+                numOfUnique = app.getArrOfUniqueVals(inpArrOfStr).length;
 
             app.updateResult({
                 initialMatrix: resMatrix1,
+                groups: groups1,
                 numOfUnique: numOfUnique
             });
         },
@@ -185,8 +198,109 @@ import ResMatrix from './ResMatrix.class.js';
             }(arr));
 
             return Object.keys(obj);
+        },
+
+        calcMatrix2: function(arr){
+            let fullSet = new Set(),	//множина з усіма елементами в усіх вже заповнених групах(треба щоб запобігати повторів у кожній групі)
+                resultsArr = [],
+                size = arr.length;		//скільки може бути елементів в групах
+
+            //заповнюємо чергу із елементів у нижньому трикутнику та їх індексів
+            let sortedQueue = [];
+            for(let i = 0; i < arr.length; i++){
+                for(let j = 0; j < arr[i].length; j++){
+                    //якщо кінець рядка нижнього трикутника(i == j), переходимо на інший рядок
+                    if(i == j)	break;
+                    sortedQueue.push({ val:arr[i][j],	x:i,	y:j });
+                }
+            }
+            //сортуємо щоб потім перебирати із найбільших елементів до найменших
+            sortedQueue.sort(function(a, b){ return a.val > b.val; });
+
+            //ділимо на групи поки ще є елементи
+            while(size){
+                if(!sortedQueue.length)	//якщо закінчились елементи в черзі - групи зформовані
+                    break;
+
+                let currentGroup = new Set(),	//поточна група
+                    x, y, 						//позиція максимального елемента
+                    el = sortedQueue.pop();		//дістаємо останній максимальний елемент з черги
+
+                //якщо залишилось 2, або 1 елемент - це вже завжди остання група
+                if(size <= 2){
+                    for(let i = 0; i < arr.length; i++ ){
+                        if(!fullSet.has(i)){
+                            currentGroup.add(i);
+                            fullSet.add(i);
+                            --size;
+                        }
+                    }
+                    resultsArr.push(currentGroup);
+                    break;
+                }
+
+                //якщо № рядка і стовпця вже є в множині - переходимо до наступної ітерації
+                //(переходимо до наступного елемента в черзі sortedQueue)...
+                if(fullSet.has(el.x) && fullSet.has(el.y))
+                    continue;
+
+                //...інакше додаємо в поточну групу і в загальну множину № рядка і/або стовпця
+                if(!fullSet.has(el.x)){
+                    currentGroup.add(el.x);
+                    fullSet.add(el.x);
+                    --size;
+                }
+                if(!fullSet.has(el.y)){
+                    currentGroup.add(el.y);
+                    fullSet.add(el.y);
+                    --size;
+                }
+
+                //пробігаємо по Рядку, додаючи № стовпців елементів, що дорівнюють поточному, в групу
+                for(let i = 0; i < arr[el.x].length; i++){
+                    let item = arr[el.x][i];
+                    if( item === el.val && !fullSet.has(i) && (i !== el.y) ){
+                        currentGroup.add(i);
+                        fullSet.add(i);
+                        --size;
+                    }
+                }
+                //пробігаємо по Стовпцю, додаючи № рядків елементів, що дорівнюють поточному, в групу
+                for(let i = 0; i < arr.length; i++){
+                    let item = arr[i][el.y];
+                    if(item === el.val && !fullSet.has(i) && (i !== el.x) ){
+                        currentGroup.add(i);
+                        fullSet.add(i);
+                        --size;
+                    }
+                }
+
+                resultsArr.push(currentGroup);
+            }
+
+            return resultsArr;
         }
     };
 
     app.initialize();
+
+    console.log( app.calcMatrix2([
+        [0,7,6,4,9,6,7],
+        [7,0,7,5,7,5,4],
+        [6,7,0,9,7,2,5],
+        [4,5,9,0,6,1,3],
+        [9,7,7,6,0,3,2],
+        [6,5,2,1,3,0,1],
+        [7,4,5,3,2,1,0]
+    ]));
+    console.log( app.calcMatrix2([
+        [0,7,6,4,7,6,7],
+        [7,0,7,5,7,5,4],
+        [6,7,0,7,7,2,5],
+        [4,5,7,0,6,1,3],
+        [7,7,7,6,0,7,2],
+        [6,5,2,1,7,0,1],
+        [7,4,5,3,2,1,0]
+    ]));
+
 }() );
