@@ -1,11 +1,15 @@
-//написати віджет matrix
-//написати ф-цію що рахуватими кількість стовпців у матриці замість arr[0].length
+'use strict';
+
+import InpMatrix from './InpMatrix.class.js';
+import ResMatrix from './ResMatrix.class.js';
+
+
 (function() {
     var app = {
 
         initialize: function () {
             this.form1 = document.forms["lab1-inp-form"];
-            this.initialMatrix1 = [
+            let initialMatrix1 = [
                 ["T1", "T2", "T3", "C1", "C2"],
                 ["T2", "T3", "C1"],
                 ["T4", "T5", "T3", "C3"],
@@ -14,7 +18,7 @@
             ];
             this.setUpListeners();
             this.updateResult();
-            this.updateInpMatrix( this.initialMatrix1 );
+            this.updateInpMatrix( initialMatrix1 );
         },
 
         setUpListeners: function () {
@@ -24,90 +28,54 @@
         },
 
         updateInpMatrix: function(initialMatrix) {
-            var table = app.form1.getElementsByTagName("table")[0],
-                rows,
-                cols,
-                i, j,
-                str = "";
-
-            table.innerHTML = "";
+            let inpMatrix;
             if(initialMatrix && initialMatrix instanceof Array){
-                rows = document.getElementById("inp-num-of-rows").value = initialMatrix.length;
-                cols = document.getElementById("inp-num-of-cols").value = initialMatrix[0].length;
-                for (i = 0; i <= rows; i++) {
-                    str += "<tr>";
-                    for (j = 0; j <= cols; j++) {
-                        if(i===0 && j===0)
-                            str += ('<th> № </th>');
-                        else if(j===0)
-                            str += ('<th>' + i + '</th>');
-                        else if(i===0)
-                            str += ('<th>' + j + '</th>');
-                        else{
-                            var inpVal = (initialMatrix[i-1] && initialMatrix[i-1][j-1]) ? initialMatrix[i-1][j-1] : "" ;
-                            str += ('<td class="input-cell"> <input type="text" pattern="[\\w,а-я,А-Я,і,ї]{0,4}" title="Введіть назви, що складаються з числел та букв довжиною до 4 символів" value="' + inpVal  + '">' + '</td>');
-                        }
-                    }
-                    str += "</tr>";
-                }
+                inpMatrix = new InpMatrix({
+                    items: initialMatrix
+                });
+				document.getElementById("inp-num-of-rows").value = inpMatrix.rows;
+                document.getElementById("inp-num-of-cols").value = inpMatrix.cols;
             } else {
-                rows = document.getElementById("inp-num-of-rows").value;
-                cols = document.getElementById("inp-num-of-cols").value;
-                for (i = 0; i <= rows; i++) {
-                    str += "<tr>";
-                    for (j = 0; j <= cols; j++) {
-                        if(i===0 && j===0)
-                            str += ('<th> № </th>');
-                        else if(j===0)
-                            str += ('<th>' + i + '</th>');
-                        else if(i===0)
-                            str += ('<th>' + j + '</th>');
-                        else
-                            str += ('<td class="input-cell"> <input type="text" pattern="[\\w,а-я,А-Я,і,ї]{0,4}" title="Введіть назви, що складаються з числел та букв довжиною до 4 символів">' + '</td>');
-                    }
-                    str += "</tr>";
-                }
+                let rows = document.getElementById("inp-num-of-rows").value;
+                let cols = document.getElementById("inp-num-of-cols").value;
+                inpMatrix = new InpMatrix({
+                    rows: rows,
+                    cols: cols
+                });
             }
-            table.innerHTML = str;
+
+            document.getElementById("inp-matrix-1").innerHTML =  inpMatrix.getElem().innerHTML;
         },
 
         updateResult: function (opts) {
             var rows, cols,
-                table,
-                i, j,
-                str = "";
+                i;
 
-            // setting default values
-            if(!opts){
-                var resultsBlockArr = document.getElementsByClassName("results-block");
-                for(i=0; i< resultsBlockArr.length; i++){
-                    resultsBlockArr[i].classList.add('hidden');
-                }
-                return;
-            }
+			let resultsBlock = document.getElementsByClassName("results-block");
+			if(!opts){
+                //ховаємо блоки з результатами
+				for(i=0; i< resultsBlock.length; i++){
+					resultsBlock[i].classList.add('hidden');
+				}
+				return;
+			} else {
+                //Показуємо блоки з результатами
+                for(i=0; i< resultsBlock.length; i++){
+					resultsBlock[i].classList.remove('hidden');
+				}
+                rows = document.getElementById("inp-num-of-rows").value;
+                cols = document.getElementById("inp-num-of-cols").value;
+			}
 
-            rows = document.getElementById("inp-num-of-rows").value;
-            cols = document.getElementById("inp-num-of-cols").value;
-            table = opts.resultsBlock.getElementsByTagName("table")[0];
-            document.getElementById("num-of-unique").innerText = opts.numOfUnique;
-            table.innerHTML = "";
-            opts.resultsBlock.classList.remove('hidden');
-            for (i = 0; i <= opts.resMatrix.length; i++) {
-                str += "<tr>";
-                //матриця результатів квадратна
-                for (j = 0; j <= opts.resMatrix.length; j++) {
-                    if(i===0 && j===0)
-                        str += ('<th> № </th>');
-                    else if(j===0)
-                        str += ('<th>' + i + '</th>');
-                    else if(i===0)
-                        str += ('<th>' + j + '</th>');
-                    else
-                        str += '<td><span class="matrix-result-cell">'+ opts.resMatrix[i-1][j-1] +'</span></td>';
-                }
-                str += "</tr>";
-            }
-            table.innerHTML = str;
+			//Виводимо перші результати 
+			let resMatrix1 = new ResMatrix({
+                items: opts.initialMatrix,
+                rows: rows,
+                cols: rows      //важливо, бо матриця кваджратна
+            });
+
+			document.getElementById("num-of-unique").innerText = opts.numOfUnique;
+            document.getElementById("res-matrix-1").innerHTML =  resMatrix1.getElem().innerHTML;
         },
 
         submitForm: function (e) {
@@ -117,10 +85,12 @@
 
             //if( !app.validate(form) ) return;
 
+			var resMatrix1 = app.solveForm1( inpArrOfStr ),
+				numOfUnique = app.numOfuniqueInArr( inpArrOfStr );
+			
             app.updateResult({
-                resultsBlock: document.getElementsByClassName("results-block")[0],  ///!!!!! переробити на form.parentNode... сусідній results-block
-                resMatrix: app.solveForm1( inpArrOfStr ),
-                numOfUnique: app.numOfuniqueInArr( inpArrOfStr )
+                initialMatrix: resMatrix1,
+                numOfUnique: numOfUnique
             });
         },
 
@@ -202,7 +172,7 @@
             (function writeInObjUniqueVal(arr){
                 if(arr.length === 0) return 0;
 
-                arr.forEach(function(item, i, arr){
+                arr.forEach(function(item){
                     if(item instanceof Array){
                         writeInObjUniqueVal(item);
                         return 0;   //коли пройдемо по всіх елементах масива, щоб сам цей масив не записало як ключ
@@ -215,11 +185,6 @@
             }(arr));
 
             return Object.keys(obj).length;
-        },
-
-        //метод для валідації форми поки не використовується
-        validateForm: function(form) {
-            return true;
         }
     };
 
