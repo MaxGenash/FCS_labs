@@ -80,7 +80,15 @@ header h1{
 }
 
 .groups td{
-	
+    text-align: left;
+    padding: 8px;
+}
+
+.groups th{
+    background-color: #dde5ff;
+    /*  background-color: #D7F6F6;    */
+    text-align: center;
+    padding: 8px;
 }
 
 footer {

@@ -49,7 +49,7 @@ import ResMatrix from './ResMatrix.class.js';
 
         updateResult: function (opts) {
             var rows, cols,
-                i;
+                i, j;
 
             let resultsBlock = document.getElementsByClassName("results-block");
             if(!opts){
@@ -78,12 +78,24 @@ import ResMatrix from './ResMatrix.class.js';
             document.getElementById("res-matrix-1").innerHTML =  resMatrix1.getElem().innerHTML;
 
             //Виводимо другі результати
-            var groupsBlock1 = document.getElementById("groups-block-1"),
-                str = "<table class='table table-bordered groups'>";
+            let groupsBlock1 = document.getElementById("groups-block-1"),
+                str = `<table class='table table-bordered groups'>
+                           <tr>
+                               <th> № </th>
+                               <th> Елементи групи </th>
+                           </tr>`;
             for(i=0; i< opts.groups.length; i++){
-                str += "<tr> ";
-                opts.groups[i].forEach( value => str += (`<td> ${value+1} </td>`) );	//value+1 бо нумерація з 0, а для користувача це не зручно
-                str += "<tr>";
+                j=0;
+                str += `<tr> <th>${ i+1 }</th><td>`;
+                opts.groups[i].forEach(function (value){
+                    if(j === (opts.groups[i].size-1)){
+                        str += (value + 1);  //value+1 бо нумерація з 0, а для користувача це не зручно
+                    } else {
+                        str += ((value + 1) + ", ");
+                    }
+                    j++;
+                });
+                str += `</td></tr>`;
             }
             str += "</table>";
             groupsBlock1.innerHTML = str;
