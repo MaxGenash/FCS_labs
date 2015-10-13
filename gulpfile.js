@@ -76,7 +76,11 @@ gulp.task('html:build', ['bower'], function () {
 
 gulp.task('js:build', function () {
     browserify(path.src.js, { debug: true })
-        .transform(babelify)
+        .transform(babelify
+            .configure({
+                sourceMapRelative: "./app/js"
+            })
+        )
         .bundle()
         .pipe(sourse('all.js'))
         .pipe(gulp.dest(path.build.js))
