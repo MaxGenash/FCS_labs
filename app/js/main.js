@@ -67,7 +67,7 @@ import ResMatrix from './ResMatrix.class.js';
                 cols = document.getElementById("inp-num-of-cols").value;
 			}
 
-			//Виводимо перші результати 
+			//Виводимо перші результати
 			let resMatrix1 = new ResMatrix({
                 items: opts.initialMatrix,
                 rows: rows,
@@ -86,8 +86,8 @@ import ResMatrix from './ResMatrix.class.js';
             //if( !app.validate(form) ) return;
 
 			var resMatrix1 = app.solveForm1( inpArrOfStr ),
-				numOfUnique = app.numOfuniqueInArr( inpArrOfStr );
-			
+				numOfUnique = app.getArrOfUniqueVals(inpArrOfStr).length;
+
             app.updateResult({
                 initialMatrix: resMatrix1,
                 numOfUnique: numOfUnique
@@ -123,7 +123,7 @@ import ResMatrix from './ResMatrix.class.js';
                 rows = inpMatrix.length,                     //максимальна кількість рядків
                 cols = inpMatrix[0].length,                  //максимальна кількість стовпців
                 resultArr = new Array( inpMatrix.length),
-                numOfUniq = app.numOfuniqueInArr(inpMatrix); //кількість унікальних елементів матриці
+                numOfUniq = app.getArrOfUniqueVals(inpMatrix).length ; //кількість унікальних елементів матриці
 
             //Алгоритм обрахунку матриці співпадінь
             for(i = 0;i < rows; i++){
@@ -166,7 +166,7 @@ import ResMatrix from './ResMatrix.class.js';
         },
 
         // кількість унікальних елементів у масиві будь-якої розмірності
-        numOfuniqueInArr: function unique(arr) {
+        getArrOfUniqueVals: function unique(arr) {
             var obj = {};   //допоміжний об'єкт, куди записуються елементи масиву як унікальні ключі
 
             (function writeInObjUniqueVal(arr){
@@ -184,7 +184,7 @@ import ResMatrix from './ResMatrix.class.js';
                 });
             }(arr));
 
-            return Object.keys(obj).length;
+            return Object.keys(obj);
         }
     };
 
