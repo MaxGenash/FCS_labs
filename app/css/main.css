@@ -45,7 +45,7 @@ header h1{
     font-weight: normal;
 }
 
-.matrix {
+.matrix, .groups-block, .connected-groups-block {
     padding: 2px 15px;
     display: inline-block;
     max-width: 100%;
@@ -55,7 +55,9 @@ header h1{
     margin: 0;
 }
 
-.matrix th {
+.matrix th, .groups-block th, .connected-groups-block th{
+    /*background-color: #dde5ff;
+      background-color: #D7F6F6;    */
     background-color: #d9edf7;
     text-align: center;
     padding: 8px;
@@ -71,24 +73,9 @@ header h1{
     text-align: center;
     padding: 1px 3px;
     width: 45px;
+    height: 100%;
     border: none;
     background-color: transparent;
-}
-
-.groups {
-	width: auto;
-}
-
-.groups td{
-    text-align: left;
-    padding: 8px;
-}
-
-.groups th{
-    background-color: #dde5ff;
-    /*  background-color: #D7F6F6;    */
-    text-align: center;
-    padding: 8px;
 }
 
 footer {
