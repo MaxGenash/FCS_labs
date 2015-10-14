@@ -3,7 +3,6 @@
 import InpMatrix from './InpMatrix.class.js';
 import ResMatrix from './ResMatrix.class.js';
 
-
 (function() {
     var app = {
 
@@ -99,6 +98,32 @@ import ResMatrix from './ResMatrix.class.js';
             }
             str += "</table>";
             groupsBlock1.innerHTML = str;
+
+            //Виводимо треті результати
+            let ordGrpsBlock1 = document.getElementById("connected-groups-block-1"),
+                str3 = `<table class='table table-bordered'>
+                           <tr>
+                               <th> № </th>
+                               <th> Елементи групи </th>
+                               <th> Відповідні операції </th>
+                           </tr>`;
+            opts.ordGrps.forEach( function(item, i){
+                let grps = [...item.gr],    //перетворюємо множину у масив
+                    opts = [...item.op];
+                grps.forEach((rowNum, i) => grps[i]++);   //інкрементуємо значення, бо нумерація з 0
+                str3 += `<tr>
+                            <th>${ i+1 }</th>
+                            <td>
+                                ${ grps }
+                            </td>
+                            <td>
+                                ${ opts }
+                            </td>
+                        </tr>`;
+            });
+            str3 += `</table>`;
+            ordGrpsBlock1.innerHTML = str3;
+
         },
 
         submitForm: function (e) {
@@ -110,12 +135,14 @@ import ResMatrix from './ResMatrix.class.js';
 
             var resMatrix1 = app.solveForm1( inpArrOfStr ),
                 groups1 = app.calcMatrix2( resMatrix1 ),
-                numOfUnique = app.getArrOfUniqueVals(inpArrOfStr).length;
+                numOfUnique = app.getArrOfUniqueVals( inpArrOfStr ).length,
+                orderedGroups = app.calcOrderedGroups(groups1, inpArrOfStr);
 
             app.updateResult({
+                numOfUnique: numOfUnique,
                 initialMatrix: resMatrix1,
                 groups: groups1,
-                numOfUnique: numOfUnique
+                ordGrps: orderedGroups
             });
         },
 
@@ -305,11 +332,66 @@ import ResMatrix from './ResMatrix.class.js';
             }
 
             return resultsArr;
+        },
+
+        calcOrderedGroups: function(initialGrps, initialOps){
+            var resultsArr = [] /*[     //так виглядає приклад масиву результатів
+                {
+                    gr: new Set([2,4,3]),
+                    op: new Set(["T1", "T2", "T3", "C1", "C2"])
+                },                {
+                    gr: new Set([1,5,6]),
+                    op: new Set(["T2", "T3", "C3"])
+                },
+                {
+                    gr: new Set([7]),
+                    op: new Set(["T4", "T5"])
+                }
+            ]
+
+             resultsArr[0].gr - множина груп
+             resultsArr[0].op - множина операцій
+
+             УВАГА!!! нумерація груп з 0
+
+            ЛАЙФХАК:
+            Для тестування можеш перевизначити введні initialGrps та initialOps
+            initialGrps =       ;
+            initialOps =        ;
+            */;
+
+            //Початкове заповнення упорядкованого масиву "груп з відповідними їм операціями":
+            //
+            //пробігаємо по переданому масиву груп і додаємо кожну групу в відповідний елемент
+            //масиву результатів
+            initialGrps.forEach(function(group, i){
+                //додаємо в масив новий об'єкт
+                resultsArr.push({
+                    gr: group , //додаємо групи, аналогічно  resultsArr[i].gr = group;
+                    op: new Set()
+                });
+
+                //додаємо відповідні кожному елементу групи операції в множину resultsArr[i].op
+                //resultsArr[i].op - це множина, тому повтори автоматично виключатимуться
+                for(let opsRow of group){
+                    // оператор spread (...) (див learn.javascript.ru/es-function#оператор-spread-вместо-arguments)
+                    // перетворить масив initialOps в окремі елементи і додасть їх почерзі
+                    resultsArr[i].op.add(...(initialOps[opsRow]));
+                }
+            });
+
+
+            //обробляєш масив resultsArr
+            //обробляєш масив resultsArr
+            //обробляєш масив resultsArr
+
+
+            return resultsArr;
         }
     };
 
     app.initialize();
-
+/*  Тести для 2 лаби
     console.log( app.calcMatrix2([
         [0,7,6,4,9,6,7],
         [7,0,7,5,7,5,4],
@@ -328,5 +410,5 @@ import ResMatrix from './ResMatrix.class.js';
         [6,5,2,1,7,0,1],
         [7,4,5,3,2,1,0]
     ]));
-
+*/
 }() );
