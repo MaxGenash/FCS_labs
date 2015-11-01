@@ -68,7 +68,7 @@ gulp.task('bower', function () {
         .pipe(gulp.dest("./dist/bower_components"));
 });
 
-gulp.task('html:build', ['bower'], function () {
+gulp.task('html:build', function () {
     gulp.src(path.src.html)                 //Выберем файлы по нужному пути
         .pipe(gulp.dest(path.build.html))   //Выплюнем их в папку build
         .pipe(reload({stream: true}));      //И перезагрузим наш сервер для обновлений
@@ -131,8 +131,8 @@ gulp.task('build', [
     'fonts:build',
     'image:build'*/
 ], function(){
-    gulp.src('.app/bower_components')
-        .pipe(gulp.dest('./dist/'));
+ //   gulp.src('.app/bower_components')
+ //       .pipe(gulp.dest('./dist/'));
 });
 
 gulp.task('watch', function(){
