@@ -78,7 +78,8 @@ gulp.task('js:build', function () {
     browserify(path.src.js, { debug: true })
         .transform(babelify
             .configure({
-                sourceMapRelative: "./app/js"
+                sourceMapRelative: "./app/js",
+                presets: ["es2015"]
             })
         )
         .bundle()
