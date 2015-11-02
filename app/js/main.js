@@ -80,12 +80,14 @@ import ResMatrix from './ResMatrix.class.js';
             let groupsBlock1 = document.getElementById("groups-block-1"),
                 str = `<table class='table table-bordered groups'>
                            <tr>
-                               <th> № </th>
+                               <th> № групи </th>
                                <th> Елементи групи </th>
                            </tr>`;
             for(i=0; i< opts.groups.length; i++){
                 j=0;
-                str += `<tr> <th>${ i+1 }</th><td>`;
+                str += `
+                <tr> <td>${ i+1 }</td>
+                     <td>`;
                 opts.groups[i].forEach(function (value){
                     if(j === (opts.groups[i].size-1)){
                         str += (value + 1);  //value+1 бо нумерація з 0, а для користувача це не зручно
@@ -94,7 +96,9 @@ import ResMatrix from './ResMatrix.class.js';
                     }
                     j++;
                 });
-                str += `</td></tr>`;
+                str += `
+                    </td>
+                </tr>`;
             }
             str += "</table>";
             groupsBlock1.innerHTML = str;
@@ -103,7 +107,7 @@ import ResMatrix from './ResMatrix.class.js';
             let ordGrpsBlock1 = document.getElementById("connected-groups-block-1"),
                 str3 = `<table class='table table-bordered'>
                            <tr>
-                               <th> № </th>
+                               <th> № групи </th>
                                <th> Елементи групи </th>
                                <th> Відповідні операції </th>
                            </tr>`;
@@ -112,7 +116,7 @@ import ResMatrix from './ResMatrix.class.js';
                     opts = [...item.op];
                 grps.forEach((rowNum, i) => grps[i]++);   //інкрементуємо значення, бо нумерація з 0
                 str3 += `<tr>
-                            <th>${ i+1 }</th>
+                            <td>${ i+1 }</td>
                             <td>
                                 ${ grps }
                             </td>
