@@ -109,7 +109,7 @@ footer .navbar .text-center{
 }
 
 
-@media (max-width: 768px) {
+@media (max-width: 970px) {
     .results-block{
         border-top: 1px dotted gray;
         padding-top: 10px;
