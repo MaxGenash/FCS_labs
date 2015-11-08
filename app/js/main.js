@@ -83,24 +83,16 @@ import ResMatrix from './ResMatrix.class.js';
                                <th> № групи </th>
                                <th> Елементи групи </th>
                            </tr>`;
-            for(i=0; i< opts.groups.length; i++){
-                j=0;
+            opts.groups.forEach( function(item, i){
+                let group = [...item];    //перетворюємо Set в Array
+                group = group.map(el => ++el);    //інкрементуємо значення кожного елемента, бо нумерація з 0
                 str += `
-                <tr> <td>${ i+1 }</td>
-                     <td>`;
-                opts.groups[i].forEach(function (value){
-                    if(j === (opts.groups[i].size-1)){
-                        str += (value + 1);  //value+1 бо нумерація з 0, а для користувача це не зручно
-                    } else {
-                        str += ((value + 1) + ", ");
-                    }
-                    j++;
-                });
-                str += `
-                    </td>
-                </tr>`;
-            }
-            str += "</table>";
+                           <tr>
+                               <td> ${ i+1 } </td>
+                               <td> ${ group.join(', ') } </td>
+                           </tr>`;
+            });
+            str += `</table>`;
             groupsBlock1.innerHTML = str;
 
             //Виводимо треті результати
@@ -118,10 +110,10 @@ import ResMatrix from './ResMatrix.class.js';
                 str3 += `<tr>
                             <td>${ i+1 }</td>
                             <td>
-                                ${ grps }
+                                ${ grps.join(', ') }
                             </td>
                             <td>
-                                ${ opts }
+                                ${ opts.join(', ') }
                             </td>
                         </tr>`;
             });
