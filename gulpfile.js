@@ -110,12 +110,12 @@ gulp.task('image:build', function () {
         .pipe(gulp.dest(path.build.img)) 
         .pipe(reload({stream: true}));
 });
-
+ */
 gulp.task('fonts:build', function() {
     gulp.src(path.src.fonts)
         .pipe(gulp.dest(path.build.fonts))
 });
-*/
+
 
 //clean
 gulp.task('clean', function () {
@@ -127,8 +127,8 @@ gulp.task('build', [
     'bower',
     'html:build',
     'js:build',
-    'style:build'/*,
-    'fonts:build',
+    'style:build',
+    'fonts:build'/*,
     'image:build'*/
 ], function(){
  //   gulp.src('.app/bower_components')
@@ -147,11 +147,11 @@ gulp.task('watch', function(){
     });
   /*  watch([path.watch.img], function(event, cb) {
         gulp.start('image:build');
-    });
+    });*/
     watch([path.watch.fonts], function(event, cb) {
         gulp.start('fonts:build');
     });
-    */
+
 });
 
 gulp.task('webserver', function () {

@@ -1,3 +1,8 @@
+@font-face {
+    font-family: comic;
+    src: url("../fonts/comic.ttf");
+}
+
 body {
     font-family: 'Merriweather',serif;
     font-size: 16px;
@@ -32,7 +37,7 @@ header.navbar {
 }
 
 header h1{
-    font-family: cursive;
+    font-family: comic, cursive;
     color: #13daec;
     font-weight: 300;
     text-shadow: 0px 1px 0px #050058;
