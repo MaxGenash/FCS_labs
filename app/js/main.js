@@ -7,17 +7,37 @@ import ResMatrix from './ResMatrix.class.js';
     var app = {
 
         initialize: function () {
-            this.form1 = document.forms["lab1-inp-form"];
-            let initialMatrix1 = [
+            let initialMatrixOfOp1 = [
                 ["T1", "T2", "T3", "C1", "C2"],
                 ["T2", "T3", "C1"],
                 ["T4", "T5", "T3", "C3"],
                 ["T2", "T5", "F1"],
                 ["T3", "C1", "C2"]
             ];
+
+            this.form1 = document.forms["lab1-inp-form"];
+
+            //дані якими оперує програма
+            this.dataState = {
+                matrixOfOperations: initialMatrixOfOp1,     //введена матриця з операціями
+                /*get matrixOfOperations() {                //
+                    return this.matrixOfOperations;
+                },
+
+                set matrixOfOperations(val) {
+                    this.matrixOfOperations = val;
+                    app.updateResult({matrixOfOperations});
+                },  */
+                numOfUniqueOp: null,                        //кількість унікальних операцій
+                matrixOfUniqueOp: null,                     //матриця унікальних операцій
+                groups: null,                               //групи із рядків з операціями
+                orderedGroups: null,                        //упорядковані групи
+                groupsWithModules: null                     //групи з модулями операцій
+            };
+
             this.setUpListeners();
             this.updateResult();
-            this.updateInpMatrix( initialMatrix1 );
+            this.updateInpMatrix( this.dataState.matrixOfOperations );
         },
 
         setUpListeners: function () {
@@ -67,14 +87,14 @@ import ResMatrix from './ResMatrix.class.js';
             }
 
             //Виводимо перші результати
-            let resMatrix1 = new ResMatrix({
-                items: opts.initialMatrix,
+            let matrixOfUniqueOp1 = new ResMatrix({
+                items: opts.matrixOfUniqueOp,
                 rows: rows,
                 cols: rows      //важливо, бо матриця кваджратна
             });
 
-            document.getElementById("num-of-unique").innerText = opts.numOfUnique;
-            document.getElementById("res-matrix-1").innerHTML =  resMatrix1.getElem().innerHTML;
+            document.getElementById("num-of-unique").innerText = opts.numOfUniqueOp;
+            document.getElementById("res-matrix-1").innerHTML =  matrixOfUniqueOp1.getElem().innerHTML;
 
             //Виводимо другі результати
             let groupsBlock1 = document.getElementById("groups-block-1"),
@@ -123,21 +143,30 @@ import ResMatrix from './ResMatrix.class.js';
         },
 
         submitForm: function (e) {
-            var form = e.target,
-                inpArrOfStr = app.getForm1Inp(form);
+            //коротші назви
+            let matrixOfOperations = app.dataState.matrixOfOperations,
+                numOfUniqueOp = app.dataState.numOfUniqueOp,
+                matrixOfUniqueOp = app.dataState.matrixOfUniqueOp,
+                groups = app.dataState.groups,
+                orderedGroups = app.dataState.orderedGroups,
+
+                form = e.target;
+
             e.preventDefault();
+
+            matrixOfOperations = app.getForm1Inp(form);
 
             //if( !app.validate(form) ) return;
 
-            var resMatrix1 = app.solveForm1( inpArrOfStr ),
-                groups1 = app.calcMatrix2( resMatrix1 ),
-                numOfUnique = app.getArrOfUniqueVals( inpArrOfStr ).length,
-                orderedGroups = app.calcOrderedGroups(groups1, inpArrOfStr);
+            numOfUniqueOp = app.getArrOfUniqueVals( matrixOfOperations ).length;
+            matrixOfUniqueOp = app.solveForm1( matrixOfOperations );
+            groups = app.calcMatrix2( matrixOfUniqueOp );
+            orderedGroups = app.calcOrderedGroups(groups, matrixOfOperations);
 
             app.updateResult({
-                numOfUnique: numOfUnique,
-                initialMatrix: resMatrix1,
-                groups: groups1,
+                numOfUniqueOp: numOfUniqueOp,
+                matrixOfUniqueOp: matrixOfUniqueOp,
+                groups: groups,
                 ordGrps: orderedGroups
             });
         },
@@ -213,7 +242,7 @@ import ResMatrix from './ResMatrix.class.js';
             return resultArr;
         },
 
-        // кількість унікальних елементів у масиві будь-якої розмірності
+        // повертає масив унікальних елементів із переданого масиву будь-якої розмірності
         getArrOfUniqueVals: function unique(arr) {
             var obj = {};   //допоміжний об'єкт, куди записуються елементи масиву як унікальні ключі
 
