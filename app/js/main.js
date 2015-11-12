@@ -2,32 +2,42 @@
 
 import InpMatrix from './InpMatrix.class.js';
 import ResMatrix from './ResMatrix.class.js';
+import drawGraph from './drawGraph.js';
 
 (function() {
     var app = {
 
         initialize: function () {
             let initialMatrixOfOp1 = [
-                ["T1", "T2", "T3", "C1", "C2"],
-                ["T2", "T3", "C1"],
-                ["T4", "T5", "T3", "C3"],
-                ["T2", "T5", "F1"],
-                ["T3", "C1", "C2"]
-            ];
+                    ["T1", "T2", "T3", "C1", "C2"],
+                    ["T2", "T3", "C1"],
+                    ["T4", "T5", "T3", "C3"],
+                    ["T2", "T5", "F1"],
+                    ["T3", "C1", "C2"]
+                ],
+                initialMatrixOfOp2 = [
+                    ["T1", "T2", "C1", "P2", "F1", "T3", "T4"],
+                    ["T2", "T1", "C1", "F1"],
+                    ["T4", "F1", "T1", "T2", "C1", "F2"],
+                    ["T2", "T1", "F2"],
+                    ["T4", "T3", "T1", "T2", "C1", "F2"],
+                    ["T3", "F2", "T1", "T2", "C1"],
+                    ["T4", "T2", "T3", "C1"]
+                ];
 
             this.form1 = document.forms["lab1-inp-form"];
 
             //дані якими оперує програма
             this.dataState = {
-                matrixOfOperations: initialMatrixOfOp1,     //введена матриця з операціями
-                /*get matrixOfOperations() {                //
-                    return this.matrixOfOperations;
-                },
+                matrixOfOperations: initialMatrixOfOp2,     //введена матриця з операціями
+                /*get matrixOfOperations() {                //якщо треба подія onchange
+                 return this.matrixOfOperations;
+                 },
 
-                set matrixOfOperations(val) {
-                    this.matrixOfOperations = val;
-                    app.updateResult({matrixOfOperations});
-                },  */
+                 set matrixOfOperations(val) {
+                 this.matrixOfOperations = val;
+                 app.updateResult({matrixOfOperations});
+                 },  */
                 numOfUniqueOp: null,                        //кількість унікальних операцій
                 matrixOfUniqueOp: null,                     //матриця унікальних операцій
                 groups: null,                               //групи із рядків з операціями
@@ -140,6 +150,83 @@ import ResMatrix from './ResMatrix.class.js';
             str3 += `</table>`;
             ordGrpsBlock1.innerHTML = str3;
 
+            //Виводимо четверті результати
+            let grpsWithModulesBlock1 = document.getElementById("groups-with-modules-block-1"),
+                str4 =
+                    `<table class="table table-bordered">
+                         <tr>
+                             <th> № групи </th>
+                             <th> № модуля </th>
+                             <th> Відповідні операції </th>
+                         </tr>`;
+            opts.grpsWithMod.forEach( (gr, i) => {
+                gr.modules.forEach( (mod, j) => {
+                    str4 +=
+                        `<tr>`;
+                    if(j === 0){    //
+                        str4 +=
+                            `<td rowspan="${gr.modules.length}">
+								<span class="group-num"> ${ i+1 } </span>
+								<button type="button" class="btn btn-default btn-show-graph" data-toggle="modal" data-group-num="${ i }"
+										data-target="#graphCorouselModal" aria-label="ShowGraph" title="Показати граф для цієї групи">
+									<span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span>
+								</button>
+							 </td>`;
+                    }
+                    str4 += `<td> ${ j+1 } </td>
+                             <td> ${ [...mod].join(", ") } </td>
+						 </tr>`;
+                });
+            });
+            str4 += `</table>`;
+            grpsWithModulesBlock1.innerHTML = str4;
+
+            //Генеруємо слайди для групи, що відповідає натисненій кнопці
+            grpsWithModulesBlock1.addEventListener("click", function(e){
+                //визначаємо на яку кнопку натиснули
+                let btn = e.target.closest(".btn-show-graph");
+                if( !btn ) return;
+
+                let groupNum = btn.dataset.groupNum,
+                    carousel = document.getElementById("carousel-with-graph-states"),
+                    carouselIndicators = carousel.getElementsByClassName("carousel-indicators")[0],
+                    carouselSlidesWrap = carousel.getElementsByClassName("carousel-inner")[0];
+
+                //очищаємо вмість блоків
+                while (carouselSlidesWrap.firstChild) {
+                    carouselSlidesWrap.removeChild(carouselSlidesWrap.firstChild);
+                }
+                while (carouselIndicators.firstChild) {
+                    carouselIndicators.removeChild(carouselIndicators.firstChild);
+                }
+
+                //генеруємо вміст слайдера із графів
+                opts.grpsWithMod[groupNum].transformingStates.forEach( (graph, i ) => {
+                    //додаємо кніпочку для переходу до певного слайду
+                    carouselIndicators.insertAdjacentHTML("beforeEnd",
+                        `<li data-target="#carousel-with-graph-states" data-slide-to="${i}"></li>`
+                    );
+
+                    //додаємо слайд
+                    carouselSlidesWrap.insertAdjacentHTML("beforeEnd",
+                        `<div class="item">
+                                <div class="graph-wrapper">
+
+                                </div>
+                                <div class="carousel-caption"> Стан №${i} </div>
+                            </div>`
+                    );
+                    drawGraph({
+                        graphContainer: carouselSlidesWrap.getElementsByClassName("graph-wrapper")[i],   //Якщо не працюватиме - переробити щоб зверху ставило відповідний data-set, а тут рядок з css селектором "[data-slideNum=4]"
+                        nodesArr: graph.nodes,
+                        edgesArr: graph.edges
+                    });
+                });
+
+                //робимо активним перший слайд
+                carouselIndicators.firstChild.classList.add("active");
+                carouselSlidesWrap.firstChild.classList.add("active");
+            });
         },
 
         submitForm: function (e) {
@@ -149,6 +236,7 @@ import ResMatrix from './ResMatrix.class.js';
                 matrixOfUniqueOp = app.dataState.matrixOfUniqueOp,
                 groups = app.dataState.groups,
                 orderedGroups = app.dataState.orderedGroups,
+                groupsWithModules = app.dataState.groupsWithModules,
 
                 form = e.target;
 
@@ -162,12 +250,14 @@ import ResMatrix from './ResMatrix.class.js';
             matrixOfUniqueOp = app.solveForm1( matrixOfOperations );
             groups = app.calcMatrix2( matrixOfUniqueOp );
             orderedGroups = app.calcOrderedGroups(groups, matrixOfOperations);
+            groupsWithModules = app.calcGrpsWithModules(orderedGroups);
 
             app.updateResult({
                 numOfUniqueOp: numOfUniqueOp,
                 matrixOfUniqueOp: matrixOfUniqueOp,
                 groups: groups,
-                ordGrps: orderedGroups
+                ordGrps: orderedGroups,
+                grpsWithMod: groupsWithModules
             });
         },
 
@@ -269,7 +359,7 @@ import ResMatrix from './ResMatrix.class.js';
             for(var i = 1; i< matrix.length; i++){
                 if(matrix[i].length > max)
                     max = matrix[i].length;
-                }
+            }
             return max;
 
             //   return matrix.reduce(function(max, current, index, arr){
@@ -411,6 +501,112 @@ import ResMatrix from './ResMatrix.class.js';
             //обробляєш масив resultsArr
 
 
+            return resultsArr;
+        },
+
+        calcGrpsWithModules: function(orderedGroups){
+            orderedGroups = [
+                {
+                    gr: new Set([2,4,3]),
+                    op: new Set(["T1", "T2", "T3", "C1", "C2"])
+                },
+                {
+                    gr: new Set([1,5,6]),
+                    op: new Set(["T2", "T3", "C3"])
+                },
+                {
+                    gr: new Set([7]),
+                    op: new Set(["T4", "T5"])
+                }
+            ];
+
+
+
+
+            var resultsArr = [
+                {   //група 1
+                    modules: [  //модулі які треба для наступної обробки
+                        new Set(["T1", "T2", "F2", "C1"]),
+                        new Set(["P2"]),
+                        new Set(["T3", "T4", "F1"])
+                    ],
+                    transformingStates: [   //стани перетворення графа
+                        {
+                            nodes: [    //вершини графа
+                                {name: "T1"},   {name: "T2"},   {name: "T3"},
+                                {name: "T3"},   {name: "T4"},   {name: "F1"},
+                                {name: "F2"},   {name: "C1"},   {name: "P2"}
+                            ],
+                            edges: [    //дуги графа
+                                {source: 0, target: 1},  {source: 0, target: 2},
+                                {source: 0, target: 3},  {source: 0, target: 4},
+                                {source: 1, target: 5},  {source: 2, target: 5},
+                                {source: 2, target: 5},  {source: 3, target: 4},
+                                {source: 5, target: 8},  {source: 6, target: 7},
+                                {source: 7, target: 8},  {source: 0, target: 8}
+                            ]
+                        },
+                        //... інші стани
+                        {
+                            nodes: [
+                                {name: "T1, T2, F2, C1"},
+                                {name: "P2"},
+                                {name: "T3, T4, F1"}
+                            ],
+                            edges: [
+                                {source: 0, target: 1},
+                                {source: 0, target: 2}
+                            ]
+                        }
+                    ]
+                },
+                {   //група 2
+                    modules: [  //модулі які треба для наступної обробки
+                        new Set([ "T1", "T2", "T3", "C1" ]),
+                        new Set([ "C2" ])
+                    ],
+                    transformingStates: [   //стани перетворення графа
+                        {
+                            nodes: [    //вершини графа
+                                {name: "T1"},   {name: "T2"},   {name: "T3"},
+                                {name: "T3"},   {name: "T4"},   {name: "F1"},
+                                {name: "C2"},   {name: "C1"}
+                            ],
+                            edges: [    //дуги графа
+                                {source: 0, target: 1},  {source: 0, target: 2},
+                                {source: 0, target: 3},  {source: 0, target: 4},
+                                {source: 3, target: 0},  {source: 2, target: 5},
+                                {source: 2, target: 5},  {source: 3, target: 4},
+                                {source: 5, target: 2},  {source: 6, target: 7}
+                            ]
+                        },
+                        {
+                            nodes: [
+                                {name: "T1, T2, T3, C1"},
+                                {name: "C2"}
+                            ],
+                            edges: [
+                                {source: 0, target: 1}
+                            ]
+                        }
+                    ]
+                }
+            ];
+
+
+            /*
+             //обробляємо кожну групу
+             orderedGroups.forEach( processGroup );
+
+
+             //функція обробки групи
+             function processGroup(group){
+             var resGroup;   //група-рузультат для 4 лаби
+
+
+             resultsArr.push( resGroup );
+             }
+             */
             return resultsArr;
         }
     };

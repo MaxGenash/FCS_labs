@@ -50,7 +50,7 @@ header h1{
     font-weight: normal;
 }
 
-.matrix, .groups-block, .connected-groups-block {
+.matrix, .groups-block, .connected-groups-block, .groups-with-modules-block {   /* виділити в .content-bock */
     padding: 2px 15px;
     display: inline-block;
     max-width: 100%;
@@ -60,7 +60,7 @@ header h1{
     margin: 0;
 }
 
-.matrix th, .groups-block th, .connected-groups-block th{
+.matrix th, .groups-block th, .connected-groups-block th, .groups-with-modules-block th{
     /*background-color: #dde5ff;
       background-color: #D7F6F6;    */
     background-color: #d9edf7;
@@ -112,6 +112,63 @@ footer .navbar .text-center{
     text-align: center;
     z-index: 2015;
 }
+
+
+.modal-dialog{
+    min-width: 98%;
+}
+    .modal-title {
+        text-align: center;
+    }
+
+    .graph-wrapper {
+        min-height: 200px;
+        overflow: auto;
+		text-align: center;
+    }
+
+    .carousel-control,
+    .carousel-control.right,
+    .carousel-control.left {
+        background-image: none;
+        /*text-shadow: 5px 0px 1px rgba(0, 28, 255, 0.58), -4px 0px 1px rgba(0, 28, 255, 0.58);  */
+        text-shadow: 5px 0px 1px rgba(0, 0, 0, 0.5), -4px 0px 1px rgba(0, 0, 0, 0.5);
+    }
+
+    .carousel-control:hover {
+        background-image: -webkit-linear-gradient(left, rgba(0, 0, 0, .0001) 0%, rgba(0, 0, 0, .5) 100%);
+        background-image: -o-linear-gradient(left, rgba(0, 0, 0, .0001) 0%, rgba(0, 0, 0, .5) 100%);
+        background-image: -webkit-gradient(linear, left top, right top, from(rgba(0, 0, 0, .0001)), to(rgba(0, 0, 0, .5)));
+        background-image: linear-gradient(to right, rgba(0, 0, 0, .0001) 0%, rgba(0, 0, 0, .5) 100%);
+        filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#00000000', endColorstr='#80000000', GradientType=1);
+        background-repeat: repeat-x;
+        opacity: .4;
+    }
+
+    .carousel-indicators li {
+        border: 1px solid gray;
+    }
+
+
+.node {
+    cursor: pointer;
+    stroke: #3182bd;
+    stroke-width: 2px;
+}
+
+.nodelabel {
+    text-anchor: middle;
+    cursor: pointer;
+}
+
+line.link {
+    fill: none;
+    stroke: #9ecae1;
+    stroke-width: 1.5px;
+}
+
+
+
 
 
 @media (max-width: 970px) {
