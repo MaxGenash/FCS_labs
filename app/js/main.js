@@ -11,9 +11,14 @@ import ResMatrix from './ResMatrix.class.js';
             let initialMatrix1 = [
                 ["T1", "T2", "T3", "C1", "C2"],
                 ["T2", "T3", "C1"],
-                /*["T1", "T2", "T3", "C3"]*//*["T3", "C1"]*//*["T4", "T5", "T3", "C3"]*/["T4", "T2", "T3"],
-                /*["T2", "T3", "C1"]*//*["T2"]*//*["T2", "T5", "F1"]*/["T2", "T3"]/*["T2", "T5", "C1"]*/,
-                ["T3", "C1", "C2"]
+                /*["T1", "T2", "T3", "C3"]*/["T3", "C1"]/*["T4", "T5", "T3", "C3"]*//*["T4", "T2", "T3"]*/,
+                /*["T2", "T3", "C1"]*//*["T2"]*/["T2", "T5", "F1"]/*["T2", "T3"]*//*["T2", "T5", "C1"]*/,
+                ["T3", "C1", "C2"],
+                    /*["1","2","3","4","5","6","7"],
+                ["1","4","6","7","8","9"],
+                ["2","4","5","9","12"],
+                ["2","5","7","9"],
+                ["4","6","7","10","11"],*/
             ];
             this.setUpListeners();
             this.updateResult();
@@ -334,40 +339,41 @@ import ResMatrix from './ResMatrix.class.js';
             return resultsArr;
         },
 
-        calcOrderedGroups: function(initialGrps, initialOps){
+        calcOrderedGroups: function(initialGrps, initialOps) {
             var resultsArr = [] /*[     //так виглядає приклад масиву результатів
-                {
-                    gr: new Set([2,4,3]),
-                    op: new Set(["T1", "T2", "T3", "C1", "C2"])
-                },                {
-                    gr: new Set([1,5,6]),
-                    op: new Set(["T2", "T3", "C3"])
-                },
-                {
-                    gr: new Set([7]),
-                    op: new Set(["T4", "T5"])
-                }
-            ]
+             {
+             gr: new Set([2,4,3]),
+             op: new Set(["T1", "T2", "T3", "C1", "C2"])
+             },                {
+             gr: new Set([1,5,6]),
+             op: new Set(["T2", "T3", "C3"])
+             },
+             {
+             gr: new Set([7]),
+             op: new Set(["T4", "T5"])
+             }
+             ]
 
              resultsArr[0].gr - множина груп
              resultsArr[0].op - множина операцій
 
              УВАГА!!! нумерація груп з 0
 
-            ЛАЙФХАК:
-            Для тестування можеш перевизначити введні initialGrps та initialOps
-            initialGrps =       ;
-            initialOps =        ;
-            */;
+             ЛАЙФХАК:
+             Для тестування можеш перевизначити введні initialGrps та initialOps
+             initialGrps =       ;
+             initialOps =        ;
+             */;
 
             //Початкове заповнення упорядкованого масиву "груп з відповідними їм операціями":
             //
             //пробігаємо по переданому масиву груп і додаємо кожну групу в відповідний елемент
             //масиву результатів
-            initialGrps.forEach(function(group, i){
+
+            initialGrps.forEach(function (group, i) {
                 //додаємо в масив новий об'єкт
                 resultsArr.push({
-                    gr: group , //додаємо групи, аналогічно  resultsArr[i].gr = group;
+                    gr: group, //додаємо групи, аналогічно  resultsArr[i].gr = group;
                     op: new Set()
                 });
                 /*
@@ -380,140 +386,192 @@ import ResMatrix from './ResMatrix.class.js';
                  }*/
 
             });
-            var i,j,k,z,count;  //counters
-            for(i=0;i<initialGrps.length;i++) {
-                for (j = 0; j < initialOps.length; j++)
-                    if (initialGrps[i].has(j)) {
-                        for (k = 0; k < 5; k++) {                   //define length of initOps
-                            if (/*!resultsArr[i].op.has(initialOps[j][k]) &&*/ initialOps[j][k] != "")
-                                resultsArr[i].op.add(initialOps[j][k])
-                        }
-                    }
-            }
             function sortBubble(data) {
                 var tmp;
 
                 for (var i = data.length - 1; i > 0; i--) {
                     for (var j = 0; j < i; j++) {
-                        if (data[j] < data[j+1]) {
+                        if (data[j][0] < data[j + 1][0]) {
                             tmp = data[j];
-                            data[j] = data[j+1];
-                            data[j+1] = tmp;
+                            data[j] = data[j + 1];
+                            data[j + 1] = tmp;
                         }
                     }
                 }
                 return data;
             }
-            var setLength=new Array(resultsArr.length);
-            for(i=0;i<resultsArr.length;i++)
-                setLength[i]=new Array(2);
-            for(i=0;i<resultsArr.length;i++){
-                setLength[i][0]=resultsArr[i].op.size;
-                setLength[i][1]=i;
+
+            function createSetLen(arr) {                        //create our array of lengths
+                var setLen = new Array(arr.length);
+                for (i = 0; i < arr.length; i++)
+                    setLen[i] = new Array(2);
+                for (i = 0; i < arr.length; i++) {
+                    setLen[i][0] = arr[i].op.size;
+                    setLen[i][1] = i;
+                }
+                return setLen;
             }
-            sortBubble(setLength);
-            function sortGroup (setLen,mySet){
-                let temp = new Set();
-                let tempGr = new Set();
-                for(i=0;i<setLen.length-1;i++)
-                    if(resultsArr[setLen[i+1][1]].op.size<=resultsArr[setLen[i][1]].op.size){
-                    temp=resultsArr[setLen[i+1][1]].op;
-                    resultsArr[setLen[i+1][1]].op=resultsArr[setLen[i][1]].op;
-                    resultsArr[setLen[i][1]].op=temp;
-                    tempGr=resultsArr[setLen[i+1][1]].gr;
-                    resultsArr[setLen[i+1][1]].gr=resultsArr[setLen[i][1]].gr;
-                    resultsArr[setLen[i][1]].gr=tempGr;
+
+            function sortGroup(setLen, mySet) {
+                let tempGr = [];
+                /*for(i=0;i<setLen.length-1;i++) {
+                 z=1;
+                 do {
+                 if (mySet[setLen[i + z][0]].op.size <= mySet[setLen[i][0]].op.size) {
+                 temp = mySet[setLen[i + z][1]].op;
+                 mySet[setLen[i + z][1]].op = mySet[setLen[i][1]].op;
+                 mySet[setLen[i][1]].op = temp;
+                 */
+
+                var tempArr1 = [];
+                for (i = 0; i < setLen.length; i++) {
+                    tempArr1[i] = new Set();
+                    tempGr[i]=new Set();
+                }
+                for (i = 0; i < setLen.length; i++) {
+                    tempArr1[i] = resultsArr[setLen[i][1]].op;
+                    tempGr[i] = resultsArr[setLen[i][1]].gr;
+                }
+                for (i = 0; i < setLen.length; i++) {
+                    mySet[i].op = tempArr1[i];
+                    mySet[i].gr = tempGr[i];
                 }
             }
-            sortGroup(setLength,resultsArr);
+            var i, j, k, z, count;  //counters
+            var setLength, tempLenSetLen;
+            for (i = 0; i < initialGrps.length; i++) {
+                for (j = 0; j < initialOps.length; j++)
+                    if (initialGrps[i].has(j)) {
+                        for (k = 0; k < initialOps[j].length; k++) {                   //define length of initOps
+                            if (/*!resultsArr[i].op.has(initialOps[j][k]) &&*/ initialOps[j][k] != "")
+                                resultsArr[i].op.add(initialOps[j][k])
+                        }
+                    }
+            }
 
-            var myArray=[];
-            for(i=0;i<resultsArr.length;i++) {
+
+
+            setLength = createSetLen(resultsArr);
+            sortBubble(setLength);
+            sortGroup(setLength, resultsArr);
+            tempLenSetLen = setLength.length;
+
+
+            var myArray = [];
+            for (i = 0; i < resultsArr.length; i++) {
                 myArray[i] = [];
                 myArray[i] = Array.from(resultsArr[i].op);
             }
-            var myArrGrp=[];
-            for(i=0;i<resultsArr.length;i++) {
+            var myArrGrp = [];
+            for (i = 0; i < resultsArr.length; i++) {
                 myArrGrp[i] = [];
                 myArrGrp[i] = Array.from(resultsArr[i].gr);
             }
             //=====================================1 check=====================================
             //=================================================================================
-            i=0;
-            do{
-                for(k=1;k<setLength.length-i;k++) {
-                    count = 0;
-                    if (myArray[i + k] == undefined)
-                        break;
-                    for (j = 0; j < myArray[i].length; j++)
-                        for (z = 0; z < myArray[i + k].length; z++)
-                            if (myArray[i][j] === myArray[i + k][z]) {
-                                count++;
-                                break;
-                            }
-                    if (count == myArray[i + k].length) {
-                        myArray[i + k].splice(0, myArray[i + k].length);
-                        for (j = 0; j < myArrGrp[i + k].length; j++)
-                            myArrGrp[i].push(myArrGrp[i +k][j]);
-                        myArrGrp[i + k].splice(0, myArrGrp[i + k].length);
-                    }
-                }
-                i++;
-                if(myArray[i+1] == undefined)
-                    break;
-            }while(true);
-
-            //====================================================================================
-            //====================================================================================
-
-            var tempArr=[];
-            var tempInd=[],p=0,l=0;
-            let tempSet = new Set();
-            //==========================================2 check===================================
-            //====================================================================================
-            i=0;
-            do{
-                for(k=1;k<setLength.length-i;k++){
-
-                    if(myArray[i+1] == undefined)
-                        break;
-                    for(l=0;l<myArrGrp[i+k].length;l++) {
+            do {
+                i = 0;
+                do {
+                    for (k = 1; k < setLength.length - i; k++) {
                         count = 0;
-                        tempArr = Array.from(initialOps[myArrGrp[i + k][l]]);
+                        if (myArray[i + k] == undefined)
+                            break;
                         for (j = 0; j < myArray[i].length; j++)
-                            if(tempArr[j]=="")
-                                tempArr.splice(j,tempArr.length);
-                        for (j = 0; j < myArray[i].length; j++)
-                            for (z = 0; z < tempArr.length; z++) {
-                                if ((myArray[i][j] == tempArr[z])&&(tempArr[z]!=undefined)) {
+                            for (z = 0; z < myArray[i + k].length; z++)
+                                if (myArray[i][j] === myArray[i + k][z]) {
                                     count++;
-                                    tempInd.push(z);
                                     break;
                                 }
-                            }
-
-                        if (count == tempArr.length) {
-                            for (p = 0; p < tempInd.length; p++)
-                                myArray[i + k].splice(tempInd[p], 1);
-                            myArrGrp[i].push(myArrGrp[i + k][l]);
-                            myArrGrp[i + k].splice(l, 1);
-                            /*for(p = 0; p < myArrGrp[i+k].length; p++)
-                             myArray[i+k]=Array.from(initialOps[myArrGrp[i+k][p]]);*/
+                        if (count == myArray[i + k].length) {
+                            //myArray[i + k].splice(0, myArray[i + k].length);
+                            for (j = 0; j < myArrGrp[i + k].length; j++)
+                                myArrGrp[i].push(myArrGrp[i + k][j]);
+                            myArray.splice(i + k, 1);
+                            myArrGrp.splice(i + k, 1);
                         }
                     }
-                    myArray[i+k]=Array.from(initialOps[myArrGrp[i+k]]);
-                    for (j = 0; j < myArray[i+k].length; j++)
-                        if(myArray[i+k][j]=="")
-                            myArray[i+k].splice(j,myArray[i+k].length);
-                }
-                i++;
-                if(myArray[i+1] == undefined)
+                    i++;
+                    if (myArray[i + 1] == undefined)
+                        break;
+                } while (true);
+                setLength = createSetLen(resultsArr);
+                sortBubble(setLength);
+                sortGroup(setLength, resultsArr);
+                if (tempLenSetLen == setLength.length)
                     break;
-            }while(true);
+                tempLenSetLen = setLength.length;
+            } while (true);
+            //====================================================================================
+            //====================================================================================
+            for (i = 0; i < resultsArr.length; i++) {
+                resultsArr[i].op = new Set(myArray[i]);
+                resultsArr[i].gr = new Set(myArrGrp[i]);
+            }
+            var tempArr = [];
+            var tempInd = [], p = 0, l = 0;
+            let tempSet = new Set();
+            for (i = 0; i < resultsArr.length; i++) {
+                myArray[i] = Array.from(resultsArr[i].op);
+            }
+            for (i = 0; i < resultsArr.length; i++) {
+                myArrGrp[i] = Array.from(resultsArr[i].gr);
+            }
+            //==========================================2 check===================================
+            //====================================================================================
+                do {
+                    i = 0;
+                    do {
+                        for (k = 1; k < setLength.length - i; k++) {
 
+                            if (myArray[i + k] == undefined)
+                                break;
+                            for (l = 0; l < myArrGrp[i + k].length; l++) {
+                                count = 0;
+                                tempInd = [];
+                                tempArr = Array.from(initialOps[myArrGrp[i + k][l]]);
+                                for (j = 0; j < myArray[i].length; j++)
+                                    if (tempArr[j] == "")
+                                        tempArr.splice(j, tempArr.length);
+                                for (j = 0; j < myArray[i].length; j++)
+                                    for (z = 0; z < tempArr.length; z++) {
+                                        if ((myArray[i][j] == tempArr[z]) && (tempArr[z] != undefined)) {
+                                            count++;
+                                            tempInd.push(z);
+                                            break;
+                                        }
+                                    }
 
+                                if (count == tempArr.length) {
+                                    for (p = 0; p < tempInd.length; p++)
+                                        myArray[i + k].splice(tempInd[p], 1);
+                                    myArrGrp[i].push(myArrGrp[i + k][l]);
+                                    myArrGrp[i + k].splice(l, 1);
+                                    for (p = 0; p < myArrGrp[i + k].length; p++)
+                                        myArray[i + k] = Array.from(initialOps[myArrGrp[i + k][p]]);
 
+                                }
+                            }
+                            /*myArray[i+k]=Array.from(initialOps[myArrGrp[i+k]]);
+                             for (j = 0; j < myArray[i+k].length; j++)
+                             if(myArray[i+k][j]=="")
+                             myArray[i+k].splice(j,myArray[i+k].length);*/
+                        }
+                        i++;
+                        if (myArray[i + 1] == undefined)
+                            break;
+                    } while (true);
 
+                    setLength = createSetLen(resultsArr);
+                    sortBubble(setLength);
+                    sortGroup(setLength, resultsArr);
+                    if (tempLenSetLen == setLength.length)
+                        break;
+                    tempLenSetLen = setLength.length;
+                }while(true);
+            setLength = createSetLen(resultsArr);
+            sortBubble(setLength);
+            sortGroup(setLength, resultsArr);
+            tempLenSetLen = setLength.length;
             //=====================================================================================
             //=====================================================================================
             for(i=0;i<resultsArr.length;i++) {
