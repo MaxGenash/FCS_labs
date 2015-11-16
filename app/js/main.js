@@ -11,14 +11,9 @@ import ResMatrix from './ResMatrix.class.js';
             let initialMatrix1 = [
                 ["T1", "T2", "T3", "C1", "C2"],
                 ["T2", "T3", "C1"],
-                /*["T1", "T2", "T3", "C3"]*/["T3", "C1"]/*["T4", "T5", "T3", "C3"]*//*["T4", "T2", "T3"]*/,
-                /*["T2", "T3", "C1"]*//*["T2"]*/["T2", "T5", "F1"]/*["T2", "T3"]*//*["T2", "T5", "C1"]*/,
-                ["T3", "C1", "C2"],
-                    /*["1","2","3","4","5","6","7"],
-                ["1","4","6","7","8","9"],
-                ["2","4","5","9","12"],
-                ["2","5","7","9"],
-                ["4","6","7","10","11"],*/
+                ["T3", "C1"],
+                ["T2", "T5", "F1"],
+                ["T3", "C1", "C2"]
             ];
             this.setUpListeners();
             this.updateResult();
@@ -161,10 +156,12 @@ import ResMatrix from './ResMatrix.class.js';
                 resultsSrtArr.push( [ ] );
                 for( j=1; j < table.rows[i].childElementCount; j++){
                     var inpVal = table.rows[i].cells[j].getElementsByTagName("input")[0].value;
-                    resultsSrtArr[i-1].push( inpVal );
+                    if(inpVal)
+                        resultsSrtArr[i-1].push( inpVal );
                 }
             }
 
+            console.log(resultsSrtArr);
             return resultsSrtArr;
         },
 
@@ -178,8 +175,8 @@ import ResMatrix from './ResMatrix.class.js';
                 q,                                           //стільки рядків будемо перестрибувати
                 count,                                       //кількість співпадінь
                 rows = inpMatrix.length,                     //максимальна кількість рядків
-                cols = inpMatrix[0].length,                  //максимальна кількість стовпців
-                resultArr = new Array( inpMatrix.length),
+                cols = app.colsInMatrix(inpMatrix),                  //максимальна кількість стовпців
+                resultArr = new Array( rows ),
                 numOfUniq = app.getArrOfUniqueVals(inpMatrix).length ; //кількість унікальних елементів матриці
 
             //Алгоритм обрахунку матриці співпадінь
@@ -192,15 +189,15 @@ import ResMatrix from './ResMatrix.class.js';
                     for(j=0;j<cols;j++){
                         temp_j=j;
                         for(k=0;k<cols;k++){
-                            if(( inpMatrix[temp_i][temp_j] === inpMatrix[temp_i+q][k] )&&(inpMatrix[temp_i][temp_j] !== ''))
+                            if(( inpMatrix[temp_i][temp_j] === inpMatrix[temp_i+q][k] ) && inpMatrix[temp_i][temp_j])
                                 break;
-                            else if((k+1==cols)&&(inpMatrix[temp_i][temp_j]!==''))
+                            else if((k+1==cols) && inpMatrix[temp_i][temp_j])
                                 count++;
                         }
                         for(k=0;k<cols;k++){
-                            if(( inpMatrix[temp_i+q][temp_j] === inpMatrix[temp_i][k] )&&(inpMatrix[temp_i+q][temp_j]!==''))
+                            if(( inpMatrix[temp_i+q][temp_j] === inpMatrix[temp_i][k] ) && inpMatrix[temp_i+q][temp_j])
                                 break;
-                            else if((k+1==cols)&&(inpMatrix[temp_i+q][temp_j]!==''))
+                            else if((k+1==cols) && inpMatrix[temp_i+q][temp_j])
                                 count++;
                         }
                     }
