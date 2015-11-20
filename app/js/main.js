@@ -3,6 +3,7 @@
 import InpMatrix from './InpMatrix.class.js';
 import ResMatrix from './ResMatrix.class.js';
 import drawGraph from './drawGraph.js';
+import U from './U.js';                    //different utilities, hacks and helpers
 
 (function() {
     var app = {
@@ -246,7 +247,7 @@ import drawGraph from './drawGraph.js';
 
             //if( !app.validate(form) ) return;
 
-            numOfUniqueOp = app.getArrOfUniqueVals( matrixOfOperations ).length;
+            numOfUniqueOp = U.getArrOfUniqueVals( matrixOfOperations ).length;
             matrixOfUniqueOp = app.solveForm1( matrixOfOperations );
             groups = app.calcMatrix2( matrixOfUniqueOp );
             orderedGroups = app.calcOrderedGroups(groups, matrixOfOperations);
@@ -290,7 +291,7 @@ import drawGraph from './drawGraph.js';
                 rows = inpMatrix.length,                     //максимальна кількість рядків
                 cols = inpMatrix[0].length,                  //максимальна кількість стовпців
                 resultArr = new Array( inpMatrix.length),
-                numOfUniq = app.getArrOfUniqueVals(inpMatrix).length ; //кількість унікальних елементів матриці
+                numOfUniq = U.getArrOfUniqueVals(inpMatrix).length ; //кількість унікальних елементів матриці
 
             //Алгоритм обрахунку матриці співпадінь
             for(i = 0;i < rows; i++){
@@ -330,42 +331,6 @@ import drawGraph from './drawGraph.js';
                 }
             }
             return resultArr;
-        },
-
-        // повертає масив унікальних елементів із переданого масиву будь-якої розмірності
-        getArrOfUniqueVals: function unique(arr) {
-            var obj = {};   //допоміжний об'єкт, куди записуються елементи масиву як унікальні ключі
-
-            (function writeInObjUniqueVal(arr){
-                if(arr.length === 0) return 0;
-
-                arr.forEach(function(item){
-                    if(item instanceof Array){
-                        writeInObjUniqueVal(item);
-                        return 0;   //коли пройдемо по всіх елементах масива, щоб сам цей масив не записало як ключ
-                    }
-
-                    var str = item.toString();  //на випадок якщо це функція, дата, тощо
-                    if (str !== '')
-                        obj[str] = true; // запомнить строку в виде свойства объекта
-                });
-            }(arr));
-
-            return Object.keys(obj);
-        },
-
-        colsInMatrix: function(matrix){
-            var max = matrix[0].length;
-            for(var i = 1; i< matrix.length; i++){
-                if(matrix[i].length > max)
-                    max = matrix[i].length;
-            }
-            return max;
-
-            //   return matrix.reduce(function(max, current, index, arr){
-            //		if(index === 0) return current.length;
-            //        return (current.length > max) ? current.length : max;
-            //    });
         },
 
         calcMatrix2: function(arr){
