@@ -581,33 +581,6 @@ import U from './U.js';                    //different utilities, hacks and help
                 //ініціалізуємо стан графа
                 var initialState = createInitialState(matrixOfOps, group);
                 resGroup.transformingStates.push( initialState );
-/*  Тестовий граф
-                let testGraph = {
-                    nodes: [    //вершини графа
-                        ["v0"],
-                        ["v1"],
-                        ["v2"],
-                        ["v3"],
-                        ["v4"],
-                        ["v5"],
-                        ["v6"]
-                    ],
-                    edges: [    //дуги графа
-                        {source: 0, target: 3},
-                        {source: 0, target: 4},
-                        {source: 1, target: 0},
-                        {source: 1, target: 4},
-                        {source: 2, target: 1},
-                        {source: 2, target: 5},
-                        {source: 3, target: 2},
-                        {source: 3, target: 0},
-                        {source: 4, target: 3},
-                        {source: 5, target: 6},
-                        {source: 6, target: 1}
-                    ]
-                };
-                resGroup.transformingStates.push( testGraph );
-*/
 
                 //спрощуємо граф за правилами
                 let graphState = initialState,
@@ -903,24 +876,4 @@ import U from './U.js';                    //different utilities, hacks and help
     };
 
     app.initialize();
-/*  Тести для 2 лаби
-    console.log( app.calcMatrix2([
-        [0,7,6,4,9,6,7],
-        [7,0,7,5,7,5,4],
-        [6,7,0,9,7,2,5],
-        [4,5,9,0,6,1,3],
-        [9,7,7,6,0,3,2],
-        [6,5,2,1,3,0,1],
-        [7,4,5,3,2,1,0]
-    ]));
-    console.log( app.calcMatrix2([
-        [0,7,6,4,7,6,7],
-        [7,0,7,5,7,5,4],
-        [6,7,0,7,7,2,5],
-        [4,5,7,0,6,1,3],
-        [7,7,7,6,0,7,2],
-        [6,5,2,1,7,0,1],
-        [7,4,5,3,2,1,0]
-    ]));
-*/
 }() );
