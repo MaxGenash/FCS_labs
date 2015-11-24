@@ -255,7 +255,7 @@ import U from './U.js';                    //different utilities, hacks and help
             matrixOfUniqueOp = app.solveForm1( matrixOfOperations );
             groups = app.calcMatrix2( matrixOfUniqueOp );
             orderedGroups = app.calcOrderedGroups(groups, matrixOfOperations);
-            groupsWithModules = app.calcGrpsWithModules(orderedGroups);
+            groupsWithModules = app.calcGrpsWithModules(orderedGroups, matrixOfOperations);
 
             app.updateResult({
                 numOfUniqueOp: numOfUniqueOp,
@@ -473,26 +473,21 @@ import U from './U.js';                    //different utilities, hacks and help
             return resultsArr;
         },
 
-        calcGrpsWithModules: function(orderedGroups){
+        calcGrpsWithModules: function(orderedGroups, matrixOfOps){
             orderedGroups = [
                 {
-                    gr: new Set([2,4,3]),
-                    op: new Set(["T1", "T2", "T3", "C1", "C2"])
+                    gr: new Set([0,4,5])//,
+             //       op: new Set(["T1", "T2", "T3", "C1", "C2"])
                 },
                 {
-                    gr: new Set([1,5,6]),
-                    op: new Set(["T2", "T3", "C3"])
-                },
-                {
-                    gr: new Set([7]),
-                    op: new Set(["T4", "T5"])
+                    gr: new Set([0,1,2,3,4,5,6])//,
+              //     op: new Set(["T2", "T3", "C3"])
                 }
             ];
 
-
-
-
-            var resultsArr = [
+            var resultsArr = [];
+/*          //Приклад структури даних результау
+            [
                 {   //група 1
                     modules: [  //модулі які треба для наступної обробки
                         new Set(["T1", "T2", "F2", "C1"]),
@@ -513,8 +508,9 @@ import U from './U.js';                    //different utilities, hacks and help
                                 {source: 5, target: 2},  {source: 3, target: 4},
                                 {source: 5, target: 8},  {source: 6, target: 7},
                                 {source: 7, target: 8},  {source: 0, target: 8}
-                            ]
-                        },
+                            ],
+                            graphInfo: "Початковий стан"
+                         },
                         //... інші стани
                         {
                             nodes: [
@@ -526,8 +522,9 @@ import U from './U.js';                    //different utilities, hacks and help
                                 {source: 0, target: 1},
                                 {source: 0, target: 2}
                             ]
-                        }
-                    ]
+                            graphInfo: "Спрощено щось там за якимось правилом"
+                         }
+                    ],
                 },
                 {   //група 2
                     modules: [  //модулі які треба для наступної обробки
@@ -547,7 +544,8 @@ import U from './U.js';                    //different utilities, hacks and help
                                 {source: 3, target: 0},  {source: 2, target: 5},
                                 {source: 2, target: 5},  {source: 3, target: 4},
                                 {source: 5, target: 2},  {source: 6, target: 7}
-                            ]
+                            ],
+                            graphInfo: "Початковий стан"
                         },
                         {
                             nodes: [
@@ -556,28 +554,351 @@ import U from './U.js';                    //different utilities, hacks and help
                             ],
                             edges: [
                                 {source: 0, target: 1}
-                            ]
-                        }
+                            ],
+                            graphInfo: "Спрощено щось там за якимось правилом"
+                         }
                     ]
                 }
             ];
-
-            return resultsArr;
-
-            /*
+*/
              //обробляємо кожну групу
-             orderedGroups.forEach( processGroup );
+            orderedGroups.forEach( ( group ) => {
+                resultsArr.push(
+                    processGroup( group.gr, matrixOfOps)  //group.gr - бо кожен елемент orderedGroups має множину груп і множину операцій
+                );
+            });
 
-
-             //функція обробки групи
-             function processGroup(group){
-             var resGroup;   //група-рузультат для 4 лаби
-
-
-             resultsArr.push( resGroup );
-             }
-             */
             return resultsArr;
+
+            //функція обробки групи
+            function processGroup(group, matrixOfOps){
+                let resGroup = {    //рузультат обробки групи
+                        modules: [],
+                        transformingStates: []
+                    },
+                    performingRules = [rule5, rule4, rule3];    // масив правил обробки, що складається з обробляючих функцій(див нижче)
+
+                //ініціалізуємо стан графа
+                var initialState = createInitialState(matrixOfOps, group);
+                resGroup.transformingStates.push( initialState );
+/*  Тестовий граф
+                let testGraph = {
+                    nodes: [    //вершини графа
+                        ["v0"],
+                        ["v1"],
+                        ["v2"],
+                        ["v3"],
+                        ["v4"],
+                        ["v5"],
+                        ["v6"]
+                    ],
+                    edges: [    //дуги графа
+                        {source: 0, target: 3},
+                        {source: 0, target: 4},
+                        {source: 1, target: 0},
+                        {source: 1, target: 4},
+                        {source: 2, target: 1},
+                        {source: 2, target: 5},
+                        {source: 3, target: 2},
+                        {source: 3, target: 0},
+                        {source: 4, target: 3},
+                        {source: 5, target: 6},
+                        {source: 6, target: 1}
+                    ]
+                };
+                resGroup.transformingStates.push( testGraph );
+*/
+
+                //спрощуємо граф за правилами
+                let graphState = initialState,
+                    finished;
+                do{
+                    finished = true;   //чи закінчено спрощення
+                    //спрощуємо граф за кожним правилом
+                    performingRules.forEach(function(rule, ruleNum) {
+                        let ruleResult = rule(graphState);   //обробляємо граф за правилом
+                        //якщо ми щось спростили
+                        if(ruleResult) {
+                            graphState = ruleResult;
+                            resGroup.transformingStates.push(graphState);
+                            finished = false;
+                        }
+                    });
+                }while(!finished);
+
+                //будуємо модулі за останнім станом графа
+                let lastState = resGroup.transformingStates[resGroup.transformingStates.length - 1];
+                resGroup.modules = lastState.nodes.map( (node) => {
+                    return new Set(node/*.name*/);
+                });
+
+                return resGroup;
+
+                function createInitialState(matrixOfOps, group){
+                    let initialState = {
+                            nodes: [],                  //вершини графа
+                            edges: [],                  //дуги графа
+                            graphInfo: "Початковий стан"
+                        };     //тимчасова множина для уникнення повторів дуг
+
+                    //створюємо масив вершин
+                    initialState.nodes = U.getArrOfUniqueVals(matrixOfOps);   //отримаємо масив рядків
+
+                    //створюємо масив дуг
+                    group.forEach( (row) => {   //кожен елемент групи - рядок операцій
+                        for(let i = 1, arr = matrixOfOps[row]; i < arr.length; i++){
+                            initialState.edges.push( {
+                                source: initialState.nodes.indexOf(arr[i-1]),
+                                target: initialState.nodes.indexOf(arr[i])
+                            } );
+                        }
+                    });
+
+                    // initialState.nodes = initialState.nodes.map( item => { return {name: item}; });  //перетворюємо щоб був масив об'єктів
+                    //перетворюємо щоб кожна вершина була масивом
+                    initialState.nodes = initialState.nodes.map( item => { return [item]; });
+
+                    //видаляємо повтори із масиву дуг
+                    initialState.edges = U.delRepeats(initialState.edges);
+
+                    //initialState.edges.sort((el1, el2) => el1.source - el2.source)    //for debugging
+                    return initialState;
+                }
+
+                //elements - масив номерів вершин які стреба об'єднати
+                //graph - граф у якому об'єднуємо вершини
+                function concatElements(elements, graph){
+                    //сортуємо у обратному порядку, бо інакше видалятиме вершини неправильно
+                    // (при видаленні вершини в масиві здвигаються)
+                    elements.sort( (a,b) => b-a );
+
+                    let resGr = U.deepClone(graph),           //результуючий граф
+                        resNode = [],                               //результуюча вершина
+                        resNodeNum = elements[elements.length-1];   //номер результуючої вершини
+
+                    ////Об'єднуємо вершини
+                    //копіюємо всі елементи, що відповідають об'єднуваним вершинам в тимчасовий resNode
+                    for(let i=0; i < elements.length; i++){
+                        resNode.push( ...resGr.nodes[ elements[i] ] );
+                    }
+                    //видаляємо елементи, що відповідають об'єднуваним вершинам
+                    //останню вершину не видаляємо - в неї запишемо результат злиття
+                    for(let i=0; i < elements.length-1; i++){
+                        resGr.nodes.splice(elements[i], 1);
+                    }
+                    resGr.nodes[resNodeNum] = resNode;
+
+                    ////Об'єднуємо дуги
+                    resGr.edges = resGr.edges.reduce( (newArr, edge, i, resGrEdges) => {
+                        //чи є edge.source(edge.target) в масиві елементів які треба об'єднати
+                        let sInConcEls = !!~elements.indexOf(edge.source),
+                            tInConcEls = !!~elements.indexOf(edge.target);
+                        //якщо це ребро між вершинами які об'єднуємо, то не включаємо його в newArr
+                        if(tInConcEls && sInConcEls)
+                            return newArr;
+                        //якщо це ребро веде до 1 з вершин які об'єднуємо,
+                        // то змінюємо щоб воно вело до результуючої(об'єднаної) вершини
+                        if(sInConcEls)
+                            edge.source = resNodeNum;
+                        if(tInConcEls)
+                            edge.target = resNodeNum;
+                        newArr.push(edge);
+                        return newArr;
+                    }, []);
+
+                    //видаляємо повтори із масиву дуг
+                    resGr.edges = U.delRepeats(resGr.edges);
+
+                    //зменшуємо номери вершин в деяких дугах, бо вершин стало менше
+                    resGr.edges.forEach( (edge, i, resGrEdges) => {
+                        for(let j=0; j < elements.length-1; j++){
+                            if(edge.source > elements[j])
+                                --edge.source;
+                            if(edge.target > elements[j])
+                                --edge.target;
+                        }
+                    });
+
+                    return resGr;
+                }
+
+                function rule3(graphState){
+                    for(let i = 0, arr = graphState.edges; i < arr.length; i++  ){
+                        for(let j = i+1; j < arr.length; j++  ){
+                            //якщо це у нас 2 взаємозв'язаних елементи - об'єднуємо їх в модуль
+                            //наприклад arr[i]= {source: 3, target: 0}, arr[j] {source: 0, target: 3},
+                            if(arr[i].source === arr[j].target && arr[j].source === arr[i].target){
+                                //УВАГА! Спрощуємо тільки 1 зв'язок, а не всі, щоб зберегти кожну зміну в transformingStates
+                                let concatArr = [arr[i].source, arr[i].target],                 //масив номерів вершин які об'єднуємо
+                                    nodesArr = getNodesArrByNum(graphState.nodes, concatArr),   //масив самих вершин які об'єднуємо
+                                    numOfOpInNode = U.getArrOfUniqueVals(nodesArr).length;      //кількість операцій у вершині яка буде після об'єднання
+                                if(numOfOpInNode < 6) {     //Ставимо обмеження на максимальну кількість операцій у вузлі = 5
+                                    let resGraph = concatElements(concatArr, graphState );
+                                    resGraph.graphInfo = "Об'єднано за 3 правилом елементи: "
+                                                       + getNodesArrByNum(graphState.nodes, concatArr).join(" - ");
+                                    return resGraph;
+                                }
+                            }
+                        }
+                    }
+
+                    //якщо нічого не спростили
+                    return null;
+                }
+
+                function rule4(graphState) {
+                    let V = graphState.nodes,
+                        E = graphState.edges,
+                        catalogCycles = [],             //масив знайдених циклів
+                        color = new Array(V.length);    //масив помічених вершин, color[i] == 1 якщо вершина ще не розглянута, якщо розглянута == 2
+
+                    //шукаємо цикли
+                    for(let i = 0; i < V.length; i++) {
+                        for(let k = 0; k < V.length; k++)
+                            color[k] = 1;
+                        let cycle = [];
+                        cycle.push(i);
+                        DFScycle(i, i, E, color, -1, cycle);
+                    }
+
+                    //сортуємо щоб спочатку спрощувало більші цикли(тоді не вилізе баг із спрощенням 2-стороннього зв'язку типу 1-2-1)
+                    catalogCycles.sort( (c1 ,c2) => c2.length - c1.length);
+
+                    //обираємо підходящий цикл із знайдених
+                    for(let cycle of catalogCycles){
+                        let nodesArr = getNodesArrByNum(graphState.nodes, cycle),
+                            numOfOpInNode = U.getArrOfUniqueVals(nodesArr).length;
+                        //Ставимо обмеження на максимальну кількість операцій у вузлі = 5
+                        if(numOfOpInNode < 6) {
+                            let resGraph = concatElements(cycle, graphState);
+                            resGraph.graphInfo = "Об'єднано за 4 правилом елементи: " + nodesArr.join(" - ");
+                            return resGraph;
+                        }
+                    }
+
+                    //якщо нічого не спростили
+                    return null;
+
+                    function DFScycle(u, endV, E, color, unavailableEdge, cycle) {
+                        //если u == endV, то эту вершину перекрашивать не нужно, иначе мы в нее не вернемся, а вернуться необходимо
+                        if ( u !== endV )
+                            color[u] = 2;
+                        else if (cycle.length >= 2) {
+                            cycle.pop();                              //останню вершину видаляємо, бо вона == першій (Напр. 1-5-3-1)
+                            if (!checkCycleIsFound(cycle, catalogCycles)) {
+                                catalogCycles.push(cycle);
+                            }
+                            return;
+                        }
+                        for (let w = 0; w < E.length; w++) {
+                            if (w == unavailableEdge)
+                                continue;
+                            if (color[E[w].target] === 1 && E[w].source === u) {
+                                let cycleNEW = U.deepClone(cycle);
+                                cycleNEW.push(E[w].target);
+                                DFScycle(E[w].target, endV, E, color, w, cycleNEW);
+                                color[E[w].target] = 1;
+                            }
+                        }
+                    }
+
+                    function checkCycleIsFound(cycle, catalogCycles) {
+                        for (let i = 0; i < catalogCycles.length; i++)
+                            for (let j = 0; j < cycle.length; j++){                    //проходимо по всім можливим здвигам елементів
+                                cycle.unshift(cycle.pop());                            //здвигаємо масив на 1 елемент
+                                if ( catalogCycles[i].join("") === cycle.join("") ) {  //перетворюємо масиви у рядки щоб порівняти їх
+                                    return true;
+                                }
+                            }
+                        return false;
+                    }
+                }
+
+                function rule5(graphState){
+                    let V = graphState.nodes,
+                        E = graphState.edges,
+                        arrWays = [],             //масив знайдених циклів
+                        color = new Array(V.length);    //масив помічених вершин, color[i] == 1 якщо вершина ще не розглянута, якщо розглянута == 2
+
+                    //шукаємо усі шляхи на графі
+                    for(let i = 0; i < V.length - 1; i++)
+                        for(let j = 0; j < V.length; j++) {
+                            for(let k = 0; k < V.length; k++)
+                                color[k] = 1;
+                            let way = [i];
+                            DFSways(i, j, E, color, way);
+                        }
+
+                    //обираємо підходящий цикл із знайдених
+                    for(let way of arrWays){
+                        let nodesArr = getNodesArrByNum(graphState.nodes, way),
+                            numOfOpInNode = U.getArrOfUniqueVals(nodesArr).length;
+                        //Ставимо обмеження на максимальну кількість операцій у вузлі = 5
+                        if(numOfOpInNode < 6) {
+                            let resGraph = concatElements(way, graphState);
+                            resGraph.graphInfo = "Об'єднано за 5 правилом елементи: " + nodesArr.join(" - ");
+                            return resGraph;
+                        }
+                    }
+
+                    //якщо нічого не спростили
+                    return null;
+
+
+                    function DFSways(u, endV, E, color, way){
+                        //вершину не следует перекрашивать, если u == endV (возможно в endV есть несколько путей)
+                        if (u != endV)
+                            color[u] = 2;
+                        else{
+                            if ( checkRule5Way(way, E) ) {
+                                arrWays.push(way);
+                            }
+                            return;
+                        }
+                        for (let w = 0; w < E.length; w++){
+                            if (color[E[w].target] == 1 && E[w].source == u) {
+                                let wayNEW = U.deepClone(way);
+                                wayNEW.push(E[w].target);
+                                DFSways(E[w].target, endV, E, color, wayNEW);
+                                color[E[w].target] = 1;
+                            }
+                        }
+                    }
+
+                    function checkRule5Way(way, E) {
+                        let start = way[0],                 //номери початкової
+                            finish = way[way.length-1];     //  та кінцевої вершин графа
+                        if(way.length < 3)
+                            return false;
+                        //якщо жодна стрілка не йде з першої вершини до останньої
+                        if ( !E.find( edge => edge.source === start && edge.target === finish) )
+                            return false;
+                        //якщо є стрілка що йде з останньої вершини до першиї
+                        if ( E.find( edge => edge.source === finish && edge.target === start) )
+                            return false;
+                        //пробігаємо по вершинам в середині шляху (не включаючи першої та останньої)
+                        for(let i = 1; i < way.length - 1; i++){
+                            //рахуємо кількість стрілок цієї вершини що ідуть, або виходять в неї з інших вершин
+                            let numOfArrows = E.reduce( (sum, edge) => {
+                                if(edge.target === way[i] ) ++sum;
+                                if(edge.source === way[i] ) ++sum;
+                                return sum;
+                            }, 0);
+                            if( numOfArrows > 2 )
+                                return false;
+                        }
+
+                        return true;
+                    }
+                }
+
+                function getNodesArrByNum(nodes, concatArr){
+                    return concatArr.reduce( (resArr, nodeNum) => {
+                        resArr.push( nodes[nodeNum] );
+                        return resArr;
+                    }, []);
+                }
+            }
         }
     };
 
