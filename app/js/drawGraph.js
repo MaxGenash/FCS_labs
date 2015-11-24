@@ -27,29 +27,31 @@ export default function drawGraph(opts){
 		.links(opts.edgesArr)
 		.size([w,h])
 		.linkDistance([linkDistance])
-		.charge([-500])
+		.charge([-5000])
 		.theta(0.1)
-		.gravity(0.05)
+		.gravity(0.2)
 		.start();
 
 	var edges = svg.selectAll("line")
 		.data(opts.edgesArr)
 		.enter()
 		.append("line")
-		.attr("id",function(d,i) {return 'edge'+i})
-		.attr('marker-end','url(#arrowhead)')
-		.style("stroke","#ccc")
-		.style("pointer-events", "none");
+		.attr({
+			'id': function(d,i) {return 'edge'+i},
+			'class': "edge",
+			'marker-end': 'url(#arrowhead)'
+		})
+		.style({
+			"pointer-events": "none"
+		});
 
 	var nodes = svg.selectAll("circle")
 		.data(opts.nodesArr)
 		.enter()
 		.append("circle")
 		.attr({
-			"r":15,
-			"class":".node"
+			"class":"node"
 		})
-		.style("fill", "white")
 		.call(force.drag);
 
 	var nodelabels = svg.selectAll(".nodelabel")
@@ -59,7 +61,7 @@ export default function drawGraph(opts){
 		.attr({
 			"x":function(d){return d.x;},
 			"y":function(d){return d.y;},
-			"class":"nodelabel",
+			"class":"node-label",
 			"stroke":"black"
 		})
 		.text(function(d){
@@ -67,10 +69,11 @@ export default function drawGraph(opts){
 		})
 		.call(force.drag);
 
-
 	//стрілки
 	svg.append('defs').append('marker')
-		.attr({'id':'arrowhead',
+		.attr({
+			'id':'arrowhead',
+			'class': "arrowhead",
 			'viewBox':'-0 -5 10 10',
 			'refX':25,
 			'refY':0,
@@ -78,11 +81,10 @@ export default function drawGraph(opts){
 			'orient':'auto',
 			'markerWidth':10,
 			'markerHeight':10,
-			'xoverflow':'visible'})
+			'xoverflow':'visible'
+		})
 		.append('svg:path')
-		.attr('d', 'M 0,-5 L 10 ,0 L 0,5')
-		.attr('fill', '#ccc')
-		.attr('stroke','#ccc');
+		.attr('d', 'M 0,-5 L 10 ,0 L 0,5');
 
 	force.on("tick", function(){
 		edges.attr({"x1": function(d){return d.source.x;},
