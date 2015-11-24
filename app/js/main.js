@@ -214,12 +214,16 @@ import U from './U.js';                    //different utilities, hacks and help
                                 <div class="graph-wrapper">
 
                                 </div>
-                                <div class="carousel-caption"> Стан №${i} </div>
+                                <div class="carousel-caption"> ${ graph.graphInfo } </div>
                             </div>`
                     );
                     drawGraph({
                         graphContainer: carouselSlidesWrap.getElementsByClassName("graph-wrapper")[i],   //Якщо не працюватиме - переробити щоб зверху ставило відповідний data-set, а тут рядок з css селектором "[data-slideNum=4]"
-                        nodesArr: graph.nodes,
+                        nodesArr: graph.nodes.map( ( item )=> {
+                            if(item instanceof Array)
+                                item = item.join(", ");
+                            return {name: item};
+                        }),
                         edgesArr: graph.edges
                     });
                 });
@@ -231,7 +235,7 @@ import U from './U.js';                    //different utilities, hacks and help
         },
 
         submitForm: function (e) {
-            //коротші назви
+            //коротші назви(записуємо адреси, а не значення)
             let matrixOfOperations = app.dataState.matrixOfOperations,
                 numOfUniqueOp = app.dataState.numOfUniqueOp,
                 matrixOfUniqueOp = app.dataState.matrixOfUniqueOp,
@@ -498,15 +502,15 @@ import U from './U.js';                    //different utilities, hacks and help
                     transformingStates: [   //стани перетворення графа
                         {
                             nodes: [    //вершини графа
-                                {name: "T1"},   {name: "T2"},   {name: "T3"},
-                                {name: "T3"},   {name: "T4"},   {name: "F1"},
-                                {name: "F2"},   {name: "C1"},   {name: "P2"}
+                                [name: "T1"],   [name: "T2"],   [name: "T3"],
+                                [name: "T3"],   [name: "T4"],   [name: "F1"],
+                                [name: "F2"],   [name: "C1"],   [name: "P2"]
                             ],
                             edges: [    //дуги графа
                                 {source: 0, target: 1},  {source: 0, target: 2},
                                 {source: 0, target: 3},  {source: 0, target: 4},
                                 {source: 1, target: 5},  {source: 2, target: 5},
-                                {source: 2, target: 5},  {source: 3, target: 4},
+                                {source: 5, target: 2},  {source: 3, target: 4},
                                 {source: 5, target: 8},  {source: 6, target: 7},
                                 {source: 7, target: 8},  {source: 0, target: 8}
                             ]
@@ -514,9 +518,9 @@ import U from './U.js';                    //different utilities, hacks and help
                         //... інші стани
                         {
                             nodes: [
-                                {name: "T1, T2, F2, C1"},
-                                {name: "P2"},
-                                {name: "T3, T4, F1"}
+                                [T1, T2, F2, C1],
+                                [P2],
+                                [T3, T4, F1]
                             ],
                             edges: [
                                 {source: 0, target: 1},
@@ -533,9 +537,9 @@ import U from './U.js';                    //different utilities, hacks and help
                     transformingStates: [   //стани перетворення графа
                         {
                             nodes: [    //вершини графа
-                                {name: "T1"},   {name: "T2"},   {name: "T3"},
-                                {name: "T3"},   {name: "T4"},   {name: "F1"},
-                                {name: "C2"},   {name: "C1"}
+                                [name: "T1"],   [name: "T2"],   [name: "T3"],
+                                [name: "T3"],   [name: "T4"],   [name: "F1"],
+                                [name: "C2"],   [name: "C1"]
                             ],
                             edges: [    //дуги графа
                                 {source: 0, target: 1},  {source: 0, target: 2},
@@ -547,8 +551,8 @@ import U from './U.js';                    //different utilities, hacks and help
                         },
                         {
                             nodes: [
-                                {name: "T1, T2, T3, C1"},
-                                {name: "C2"}
+                                ["T1, T2, T3, C1"],
+                                [name: "C2"]
                             ],
                             edges: [
                                 {source: 0, target: 1}
@@ -558,6 +562,7 @@ import U from './U.js';                    //different utilities, hacks and help
                 }
             ];
 
+            return resultsArr;
 
             /*
              //обробляємо кожну групу
