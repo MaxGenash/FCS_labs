@@ -9,18 +9,11 @@ import U from './U.js';                    //different utilities, hacks and help
     var app = {
 
         initialize: function () {
-            let initialMatrixOfOp1 = [
-                    ["T1", "T2", "T3", "C1", "C2"],
-                    ["T2", "T3", "C1"],
-                    ["T4", "T5", "T3", "C3"],
-                    ["T2", "T5", "F1"],
-                    ["T3", "C1", "C2"]
-                ],
-                initialMatrixOfOp2 = [
-                    ["T1", "T2", "C1", "P2", "F1", "T3", "T4"],
-                    ["T2", "T1", "C1", "F1"],
+            let initialMatrixOfOp = [
+                    ["T1", "T2", "C1", "P2", "F1"],
+                    ["T2", "T1", "C1", "F1", "T3", "T4"],
                     ["T4", "F1", "T1", "T2", "C1", "F2"],
-                    ["T2", "T1", "F2"],
+                    ["T2", "T1", "F2", "C1"],
                     ["T4", "T3", "T1", "T2", "C1", "F2"],
                     ["T3", "F2", "T1", "T2", "C1"],
                     ["T4", "T2", "T3", "C1"]
@@ -30,7 +23,7 @@ import U from './U.js';                    //different utilities, hacks and help
 
             //дані якими оперує програма
             this.dataState = {
-                matrixOfOperations: initialMatrixOfOp2,     //введена матриця з операціями
+                matrixOfOperations: initialMatrixOfOp,     //введена матриця з операціями
                 /*get matrixOfOperations() {                //якщо треба подія onchange
                  return this.matrixOfOperations;
                  },
@@ -276,7 +269,8 @@ import U from './U.js';                    //different utilities, hacks and help
                 resultsSrtArr.push( [ ] );
                 for( j=1; j < table.rows[i].childElementCount; j++){
                     var inpVal = table.rows[i].cells[j].getElementsByTagName("input")[0].value;
-                    resultsSrtArr[i-1].push( inpVal );
+                    if(inpVal)
+                        resultsSrtArr[i-1].push( inpVal );
                 }
             }
 
@@ -418,7 +412,15 @@ import U from './U.js';                    //different utilities, hacks and help
             return resultsArr;
         },
 
-        calcOrderedGroups: function(initialGrps, initialOps){
+        /**
+         * Функція для впорядкування груп
+         *
+         * @param initialGrps
+         * @param initialOps
+         * @returns resultsArr[0].gr - множина груп
+         * @returns resultsArr[0].op - множина операцій
+         */
+        calcOrderedGroups: function(initialGrps, initialOps) {
             var resultsArr = [] /*[     //так виглядає приклад масиву результатів
                 {
                     gr: new Set([2,4,3]),
@@ -437,44 +439,220 @@ import U from './U.js';                    //different utilities, hacks and help
              resultsArr[0].op - множина операцій
 
              УВАГА!!! нумерація груп з 0
+             */;
 
-            ЛАЙФХАК:
-            Для тестування можеш перевизначити введні initialGrps та initialOps
-            initialGrps =       ;
-            initialOps =        ;
-            */;
 
-            //Початкове заповнення упорядкованого масиву "груп з відповідними їм операціями":
-            //
-            //пробігаємо по переданому масиву груп і додаємо кожну групу в відповідний елемент
-            //масиву результатів
-            initialGrps.forEach(function(group, i){
+            initialGrps.forEach(function (group, i) {
                 //додаємо в масив новий об'єкт
                 resultsArr.push({
-                    gr: group , //додаємо групи, аналогічно  resultsArr[i].gr = group;
+                    gr: group, //додаємо групи, аналогічно  resultsArr[i].gr = group;
                     op: new Set()
                 });
-
-                //додаємо відповідні кожному елементу групи операції в множину resultsArr[i].op
-                //resultsArr[i].op - це множина, тому повтори автоматично виключатимуться
-                for(let opsRow of group){
-                    // оператор spread (...) (див learn.javascript.ru/es-function#оператор-spread-вместо-arguments)
-                    // перетворить масив initialOps в окремі елементи і додасть їх почерзі
-                    resultsArr[i].op.add(...(initialOps[opsRow]));
-                }
             });
 
+            function sortBubble(data) {
+                var tmp;
 
-            //обробляєш масив resultsArr
-            //обробляєш масив resultsArr
-            //обробляєш масив resultsArr
+                for (var i = data.length - 1; i > 0; i--) {
+                    for (var j = 0; j < i; j++) {
+                        if (data[j][0] < data[j + 1][0]) {
+                            tmp = data[j];
+                            data[j] = data[j + 1];
+                            data[j + 1] = tmp;
+                        }
+                    }
+                }
+                return data;
+            }
 
+            function createSetLen(arr) {                        //create our array of lengths
+                var setLen = new Array(arr.length);
+                for (i = 0; i < arr.length; i++)
+                    setLen[i] = new Array(2);
+                for (i = 0; i < arr.length; i++) {
+                    setLen[i][0] = arr[i].op.size;
+                    setLen[i][1] = i;
+                }
+                return setLen;
+            }
+
+            function sortGroup(setLen, mySet) {
+                let tempGr = [];
+                /*for(i=0;i<setLen.length-1;i++) {
+                 z=1;
+                 do {
+                 if (mySet[setLen[i + z][0]].op.size <= mySet[setLen[i][0]].op.size) {
+                 temp = mySet[setLen[i + z][1]].op;
+                 mySet[setLen[i + z][1]].op = mySet[setLen[i][1]].op;
+                 mySet[setLen[i][1]].op = temp;
+                 */
+
+                var tempArr1 = [];
+                for (i = 0; i < setLen.length; i++) {
+                    tempArr1[i] = new Set();
+                    tempGr[i]=new Set();
+                }
+                for (i = 0; i < setLen.length; i++) {
+                    tempArr1[i] = resultsArr[setLen[i][1]].op;
+                    tempGr[i] = resultsArr[setLen[i][1]].gr;
+                }
+                for (i = 0; i < setLen.length; i++) {
+                    mySet[i].op = tempArr1[i];
+                    mySet[i].gr = tempGr[i];
+                }
+            }
+            var i, j, k, z, count;  //counters
+            var setLength, tempLenSetLen;
+            for (i = 0; i < initialGrps.length; i++) {
+                for (j = 0; j < initialOps.length; j++)
+                    if (initialGrps[i].has(j)) {
+                        for (k = 0; k < initialOps[j].length; k++) {                   //define length of initOps
+                            if (/*!resultsArr[i].op.has(initialOps[j][k]) &&*/ initialOps[j][k] != "")
+                                resultsArr[i].op.add(initialOps[j][k])
+                        }
+                    }
+            }
+
+            setLength = createSetLen(resultsArr);
+            sortBubble(setLength);
+            sortGroup(setLength, resultsArr);
+            tempLenSetLen = setLength.length;
+
+            var myArray = [];
+            for (i = 0; i < resultsArr.length; i++) {
+                myArray[i] = [];
+                myArray[i] = Array.from(resultsArr[i].op);
+            }
+            var myArrGrp = [];
+            for (i = 0; i < resultsArr.length; i++) {
+                myArrGrp[i] = [];
+                myArrGrp[i] = Array.from(resultsArr[i].gr);
+            }
+            //=====================================1 check=====================================
+            //=================================================================================
+            do {
+                i = 0;
+                do {
+                    for (k = 1; k < setLength.length - i; k++) {
+                        count = 0;
+                        if (myArray[i + k] == undefined)
+                            break;
+                        for (j = 0; j < myArray[i].length; j++)
+                            for (z = 0; z < myArray[i + k].length; z++)
+                                if (myArray[i][j] === myArray[i + k][z]) {
+                                    count++;
+                                    break;
+                                }
+                        if (count == myArray[i + k].length) {
+                            //myArray[i + k].splice(0, myArray[i + k].length);
+                            for (j = 0; j < myArrGrp[i + k].length; j++)
+                                myArrGrp[i].push(myArrGrp[i + k][j]);
+                            myArray.splice(i + k, 1);
+                            myArrGrp.splice(i + k, 1);
+                        }
+                    }
+                    i++;
+                    if (myArray[i + 1] == undefined)
+                        break;
+                } while (true);
+                setLength = createSetLen(resultsArr);
+                sortBubble(setLength);
+                sortGroup(setLength, resultsArr);
+                if (tempLenSetLen == setLength.length)
+                    break;
+                tempLenSetLen = setLength.length;
+            } while (true);
+            //====================================================================================
+            //====================================================================================
+            for (i = 0; i < resultsArr.length; i++) {
+                resultsArr[i].op = new Set(myArray[i]);
+                resultsArr[i].gr = new Set(myArrGrp[i]);
+            }
+            var tempArr = [];
+            var tempInd = [], p = 0, l = 0;
+            let tempSet = new Set();
+            for (i = 0; i < resultsArr.length; i++) {
+                myArray[i] = Array.from(resultsArr[i].op);
+            }
+            for (i = 0; i < resultsArr.length; i++) {
+                myArrGrp[i] = Array.from(resultsArr[i].gr);
+            }
+            //==========================================2 check===================================
+            //====================================================================================
+                do {
+                    i = 0;
+                    do {
+                        for (k = 1; k < setLength.length - i; k++) {
+
+                            if (myArray[i + k] == undefined)
+                                break;
+                            for (l = 0; l < myArrGrp[i + k].length; l++) {
+                                count = 0;
+                                tempInd = [];
+                                tempArr = Array.from(initialOps[myArrGrp[i + k][l]]);
+                                for (j = 0; j < myArray[i].length; j++)
+                                    if (tempArr[j] == "")
+                                        tempArr.splice(j, tempArr.length);
+                                for (j = 0; j < myArray[i].length; j++)
+                                    for (z = 0; z < tempArr.length; z++) {
+                                        if ((myArray[i][j] == tempArr[z]) && (tempArr[z] != undefined)) {
+                                            count++;
+                                            tempInd.push(z);
+                                            break;
+                                        }
+                                    }
+
+                                if (count == tempArr.length) {
+                                    for (p = 0; p < tempInd.length; p++)
+                                        myArray[i + k].splice(tempInd[p], 1);
+                                    myArrGrp[i].push(myArrGrp[i + k][l]);
+                                    myArrGrp[i + k].splice(l, 1);
+                                    for (p = 0; p < myArrGrp[i + k].length; p++)
+                                        myArray[i + k] = Array.from(initialOps[myArrGrp[i + k][p]]);
+
+                                }
+                            }
+                            /*myArray[i+k]=Array.from(initialOps[myArrGrp[i+k]]);
+                             for (j = 0; j < myArray[i+k].length; j++)
+                             if(myArray[i+k][j]=="")
+                             myArray[i+k].splice(j,myArray[i+k].length);*/
+                        }
+                        i++;
+                        if (myArray[i + 1] == undefined)
+                            break;
+                    } while (true);
+
+                    setLength = createSetLen(resultsArr);
+                    sortBubble(setLength);
+                    sortGroup(setLength, resultsArr);
+                    if (tempLenSetLen == setLength.length)
+                        break;
+                    tempLenSetLen = setLength.length;
+                }while(true);
+            setLength = createSetLen(resultsArr);
+            sortBubble(setLength);
+            sortGroup(setLength, resultsArr);
+            tempLenSetLen = setLength.length;
+            //=====================================================================================
+            //=====================================================================================
+            for(i=0;i<resultsArr.length;i++) {
+                resultsArr[i].op =new Set(myArray[i]);
+                resultsArr[i].gr =new Set(myArrGrp[i]);
+            }
+
+            //видаляєми пусті елементи з масиву
+            for(i=0; i < resultsArr.length; i++){
+                if( /*  !resultsArr[i].op.size && */ !resultsArr[i].gr.size){
+                    resultsArr.splice(i, 1);
+                    --i;
+                }
+            }
 
             return resultsArr;
         },
 
         calcGrpsWithModules: function(orderedGroups, matrixOfOps){
-            orderedGroups = [
+    /*        orderedGroups = [
                 {
                     gr: new Set([0,4,5])//,
              //       op: new Set(["T1", "T2", "T3", "C1", "C2"])
@@ -484,7 +662,7 @@ import U from './U.js';                    //different utilities, hacks and help
               //     op: new Set(["T2", "T3", "C3"])
                 }
             ];
-
+*/
             var resultsArr = [];
 /*          //Приклад структури даних результау
             [
