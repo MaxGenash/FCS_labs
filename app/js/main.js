@@ -339,6 +339,14 @@ import ResMatrix from './ResMatrix.class.js';
             return resultsArr;
         },
 
+        /**
+         * Функція для впорядкування груп
+         *
+         * @param initialGrps
+         * @param initialOps
+         * @returns resultsArr[0].gr - множина груп
+         * @returns resultsArr[0].op - множина операцій
+         */
         calcOrderedGroups: function(initialGrps, initialOps) {
             var resultsArr = [] /*[     //так виглядає приклад масиву результатів
              {
@@ -358,17 +366,8 @@ import ResMatrix from './ResMatrix.class.js';
              resultsArr[0].op - множина операцій
 
              УВАГА!!! нумерація груп з 0
-
-             ЛАЙФХАК:
-             Для тестування можеш перевизначити введні initialGrps та initialOps
-             initialGrps =       ;
-             initialOps =        ;
              */;
 
-            //Початкове заповнення упорядкованого масиву "груп з відповідними їм операціями":
-            //
-            //пробігаємо по переданому масиву груп і додаємо кожну групу в відповідний елемент
-            //масиву результатів
 
             initialGrps.forEach(function (group, i) {
                 //додаємо в масив новий об'єкт
@@ -376,16 +375,8 @@ import ResMatrix from './ResMatrix.class.js';
                     gr: group, //додаємо групи, аналогічно  resultsArr[i].gr = group;
                     op: new Set()
                 });
-                /*
-                 //додаємо відповідні кожному елементу групи операції в множину resultsArr[i].op
-                 //resultsArr[i].op - це множина, тому повтори автоматично виключатимуться
-                 for(let opsRow of group){
-                 // оператор spread (...) (див learn.javascript.ru/es-function#оператор-spread-вместо-arguments)
-                 // перетворить масив initialOps в окремі елементи і додасть їх почерзі
-                 resultsArr[i].op.add(...(initialOps[opsRow]));
-                 }*/
-
             });
+
             function sortBubble(data) {
                 var tmp;
 
@@ -579,9 +570,14 @@ import ResMatrix from './ResMatrix.class.js';
                 resultsArr[i].gr =new Set(myArrGrp[i]);
             }
 
-            //обробляєш масив resultsArr
-            //обробляєш масив resultsArr
-            //обробляєш масив resultsArr
+
+            //видаляєми пусті елементи з масиву
+            for(i=0; i < resultsArr.length; i++){
+                if(!resultsArr[i].op.size && !resultsArr[i].gr.size){
+                    resultsArr.splice(i, 1);
+                    --i;
+                }
+            }
 
 
             return resultsArr;
