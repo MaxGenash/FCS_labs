@@ -217,7 +217,7 @@ import U from './U.js';                    //different utilities, hacks and help
                                 item = item.join(", ");
                             return {name: item};
                         }),
-                        edgesArr: graph.edges
+                        edgesArr: U.deepClone(graph.edges)
                     });
                 });
 
