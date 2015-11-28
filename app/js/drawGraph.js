@@ -11,28 +11,61 @@
  *
  */
 export default function drawGraph(opts){
-	var w = opts.width || (window.innerWidth*0.8 > 800) ? window.innerWidth*0.8 : 800;
-	var h = opts.height || (window.innerHeight*0.7 > 500) ? window.innerHeight*0.7 : 500;
-	var linkDistance=60;
+	var initialW = opts.width || (window.innerWidth*0.8 > 800) ? window.innerWidth*0.8 : 800,
+	 	initialH = opts.height || (window.innerHeight*0.7 > 500) ? window.innerHeight*0.7 : 500,
+		margin = {top: -5, right: -5, bottom: -5, left: -5},	//початкове значення відступів(потім при масштабуванні зміниться)
+		width = initialW - margin.left - margin.right,
+		height = initialH - margin.top - margin.bottom,
+		linkDistance = 60,
+		minZoom = 0.1,
+		maxZoom = 10;
 
+	var zoom = d3.behavior.zoom()
+    .scaleExtent([minZoom, maxZoom])
+    .on("zoom", zoomed);
+
+	var drag = d3.behavior.drag()
+		.origin(function(d) { return d; })
+		.on("dragstart", dragstarted)
+		.on("drag", dragged)
+		.on("dragend", dragended);
+	
 	//var colors = d3.scale.category10();
 
-	var svg = d3.select(opts.graphContainer).append("svg").attr({"width":w,"height":h});
+	var svg = d3.select(opts.graphContainer)
+		.append("svg")
+		.attr({
+			width: width + margin.left + margin.right, 
+			height: height + margin.top + margin.bottom
+		})
+		.append("g")
+		.attr("transform", "translate(" + margin.left + "," + margin.right + ")")
+		.call(zoom);
+
 	resize();
 	//window.focus();
 	d3.select(window).on("resize", resize);
 
+	var rect = svg.append("rect")
+		.attr("width", width)
+		.attr("height", height)
+		.style("fill", "none")
+		.style("pointer-events", "all");
+
+	var container = svg.append("g");
+	
 	var force = d3.layout.force()
 		.nodes(opts.nodesArr)
 		.links(opts.edgesArr)
-		.size([w,h])
+		.size([width, height])
 		.linkDistance([linkDistance])
 		.charge([-5000])
 		.theta(0.1)
-		.gravity(0.2)
+		.gravity(0.1)
 		.start();
 
-	var edges = svg.selectAll("line")
+	var containerInner = container.append("g")	;
+	var edges = containerInner.selectAll("line")
 		.data(opts.edgesArr)
 		.enter()
 		.append("line")
@@ -45,16 +78,16 @@ export default function drawGraph(opts){
 			"pointer-events": "none"
 		});
 
-	var nodes = svg.selectAll("circle")
+	var nodes = containerInner.selectAll("circle")
 		.data(opts.nodesArr)
 		.enter()
 		.append("circle")
 		.attr({
 			"class":"node"
 		})
-		.call(force.drag);
+		.call(drag);
 
-	var nodelabels = svg.selectAll(".nodelabel")
+	var nodelabels = containerInner.selectAll(".nodelabel")
 		.data(opts.nodesArr)
 		.enter()
 		.append("text")
@@ -67,12 +100,13 @@ export default function drawGraph(opts){
 		.text(function(d){
 			return d.name;
 		})
-		.call(force.drag);
+		.call(drag);
 
-	//стрілки
-	svg.append('defs').append('marker')
+	//arrows
+	var arrows = containerInner.append('defs')
+		.append('marker')
 		.attr({
-			'id':'arrowhead',
+			'id': "arrowhead",
 			'class': "arrowhead",
 			'viewBox':'-0 -5 10 10',
 			'refX':25,
@@ -87,24 +121,48 @@ export default function drawGraph(opts){
 		.attr('d', 'M 0,-5 L 10 ,0 L 0,5');
 
 	force.on("tick", function(){
-		edges.attr({"x1": function(d){return d.source.x;},
+		edges.attr({
+			"x1": function(d){return d.source.x;},
 			"y1": function(d){return d.source.y;},
 			"x2": function(d){return d.target.x;},
 			"y2": function(d){return d.target.y;}
 		});
 
-		nodes.attr({"cx":function(d){return d.x;},
+		nodes.attr({
+			"cx":function(d){return d.x;},
 			"cy":function(d){return d.y;}
 		});
 
-		nodelabels.attr("x", function(d) { return d.x; })
-			.attr("y", function(d) { return d.y; });
+		nodelabels.attr({
+			"x": function(d) { return d.x; },
+			"y": function(d) { return d.y; }
+		});
 	});
 
-	function resize() {
-		w = (window.innerWidth*0.8 > 800) ? window.innerWidth*0.8 : 800;
-		h = (window.innerHeight*0.7 > 500) ? window.innerHeight*0.7 : 500;
-		svg.attr("width", w)
-			.attr("height", h);
+	function dragstarted(d) {
+	  d3.event.sourceEvent.stopPropagation();
+	  d3.select(this).classed("dragging", true);
+	  force.start();
 	}
+
+	function dragged(d) {
+	  d3.select(this).attr("cx", d.x = d3.event.x).attr("cy", d.y = d3.event.y);
+	}
+
+	function dragended(d) {
+	  d3.select(this).classed("dragging", false);
+	}
+	
+	function resize() {
+		initialW = (window.innerWidth*0.8 > 800) ? window.innerWidth*0.8 : 800;
+		initialH = (window.innerHeight*0.7 > 500) ? window.innerHeight*0.7 : 500;
+		width = initialW - margin.left - margin.right;
+		height = initialH - margin.top - margin.bottom;
+		svg.attr("width", width)
+			.attr("height", height);
+	}
+
+	function zoomed() {
+	  container.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+	}	
 }
