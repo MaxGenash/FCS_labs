@@ -29,8 +29,6 @@ export default function drawGraph(opts){
 		.on("dragstart", dragstarted)
 		.on("drag", dragged)
 		.on("dragend", dragended);
-	
-	//var colors = d3.scale.category10();
 
 	var svg = d3.select(opts.graphContainer)
 		.append("svg")
@@ -53,7 +51,8 @@ export default function drawGraph(opts){
 		.style("pointer-events", "all");
 
 	var container = svg.append("g");
-	
+	var containerInner = container.append("g");
+
 	var force = d3.layout.force()
 		.nodes(opts.nodesArr)
 		.links(opts.edgesArr)
@@ -64,7 +63,6 @@ export default function drawGraph(opts){
 		.gravity(0.1)
 		.start();
 
-	var containerInner = container.append("g")	;
 	var edges = containerInner.selectAll("line")
 		.data(opts.edgesArr)
 		.enter()
@@ -85,6 +83,7 @@ export default function drawGraph(opts){
 		.attr({
 			"class":"node"
 		})
+		.on('dblclick', releaseNode)
 		.call(drag);
 
 	var nodelabels = containerInner.selectAll(".nodelabel")
@@ -100,6 +99,7 @@ export default function drawGraph(opts){
 		.text(function(d){
 			return d.name;
 		})
+		.on('dblclick', releaseNode)
 		.call(drag);
 
 	//arrows
@@ -140,19 +140,30 @@ export default function drawGraph(opts){
 	});
 
 	function dragstarted(d) {
-	  d3.event.sourceEvent.stopPropagation();
-	  d3.select(this).classed("dragging", true);
-	  force.start();
+		d3.event.sourceEvent.stopPropagation();
+		d3.select(this).classed("dragging", true);
+		force.stop();
 	}
 
 	function dragged(d) {
-	  d3.select(this).attr("cx", d.x = d3.event.x).attr("cy", d.y = d3.event.y);
+		d.px += d3.event.dx;
+		d.py += d3.event.dy;
+		d.x += d3.event.dx;
+		d.y += d3.event.dy;
 	}
 
 	function dragended(d) {
-	  d3.select(this).classed("dragging", false);
+		d.fixed = true;	//зафіксувати вершину якщо її перетащили
+		d3.select(this).classed("dragging", false);
+		force.resume();
 	}
-	
+
+	function releaseNode(d){
+		d3.event.stopPropagation();	//Відміняємо масштабування
+		d.fixed = false;
+		force.resume();
+	}
+
 	function resize() {
 		initialW = (window.innerWidth*0.8 > 800) ? window.innerWidth*0.8 : 800;
 		initialH = (window.innerHeight*0.7 > 500) ? window.innerHeight*0.7 : 500;
@@ -163,6 +174,6 @@ export default function drawGraph(opts){
 	}
 
 	function zoomed() {
-	  container.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+		container.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 	}	
 }
