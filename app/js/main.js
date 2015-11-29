@@ -1076,18 +1076,44 @@ import U from './U.js';                    //different utilities, hacks and help
         calcOrderedModules(groupsWithModules){
             let modulesArr = fetchModulesArr(groupsWithModules);
 
-            //modulesArr = [];  //можна перевизначити так як треба
-
             //відсортувати модулі
+            modulesArr.sort( (a, b) => a.size - b.size );
 
-            //повидаляти повтори і все що там лишнє
+            //повидаляти усі модулі всі елементи яких є в більших модулях
+            modulesArr = modulesArr.filter((item, i, arr) => {
+                let numOfOwnEl = item.size;     //скільки у модуля елементів, яких нема в наступних модулях
+                arr.slice(i+1).forEach( (item2) => {
+                    for(let el of item){
+                        if( item2.has(el) )
+                            --numOfOwnEl;
+                    }
+                });
+                //якщо в модулі є унікальні елементи, вираз поверне true і мадуль додасться в новий масив
+                return numOfOwnEl > 0;
+            });
 
-            //!!!для тесту відображення, видалити коли calcOrderedModules буде дописано
-            modulesArr = [
-                new Set(["C3"]),
-                new Set(["T1", "T2", "C1"]),
-                new Set(["T3", "T4", "C3"])
-            ];
+            //повидаляти повтори елементів з більших модулів
+            let wasOverlap; //чи знайшовся спільний елемент в 2 модулях
+            do{
+                wasOverlap = false;
+                for(let i = modulesArr.length-1; i >=0 && !wasOverlap; i--){
+                    for(let j = i-1; j >=0 && !wasOverlap; j--){
+                        //чи має якийсь із менших модулів елмент із більшого модуля
+                        for( let el of modulesArr[i] ){
+                            if( modulesArr[j].has(el) ){
+                                modulesArr[i].delete(el);
+                                wasOverlap = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                //якщо знайшовся спільний елемент в 2 модулях то ми видалили із більшого модуля 1 елемент і тепер
+                // цей більший модуль зменшився, тому всі модулі треба пересортувати
+                if(wasOverlap){
+                    modulesArr.sort( (a, b) => a.size - b.size );
+                }
+            }while(wasOverlap);
 
             return modulesArr;
 
