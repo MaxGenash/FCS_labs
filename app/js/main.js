@@ -11,7 +11,7 @@ import U from './U.js';                    //different utilities, hacks and help
         initialize: function () {
             let initialMatrixOfOp = [
                     ["T1", "T2", "C1", "P2", "F1", "T4"],
-                    ["T2", "T1", "C1", "F1", "T3", "T4"],
+                    ["T2", "T1", "C1", "F1", "T3"],
                     ["T4", "F1", "T1", "T2", "C1", "F2"],
                     ["T2", "T1", "F2", "C1"],
                     ["T4", "T3", "T1", "T2"],
