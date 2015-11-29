@@ -149,12 +149,38 @@ function deepClone(obj) {
 	return out;
 }
 
+//Перевіряє чи є множина set2 підмножиною set1
+//якщо хоч 1 елементи різний - поверне false
+function isSubSet(set1, set2){
+	var result = true;
+	set2.forEach( Set2el => {
+		if( !set1.has(Set2el) )
+			result = false;
+	});
+	return result;
+}
+/* Examples
+ var set1 = new Set(["a", "b", "c", "d"]);
+ var set2 = new Set(["a", "c"]);
+ var set3 = new Set(["a", "m"]);
+ var set4 = new Set(["m"]);
+ var set5 = new Set(["c"]);
+
+ isSubSet(set1, set2)	//true
+ isSubSet(set1, set3)	//false
+ isSubSet(set1, set4)	//false
+ isSubSet(set1, set5)	//true
+ */
+
+
+
 let U = {
 	deepEqual,
 	colsInMatrix,
 	getArrOfUniqueVals,
 	delRepeats,
-	deepClone
+	deepClone,
+	isSubSet
 };
 
 export default U;
