@@ -1,5 +1,7 @@
 'use strict';
 
+import U from "./U.js";
+
 export default class Matrix {
     constructor(options){
         options.rows = parseInt(options.rows);
@@ -23,11 +25,11 @@ export default class Matrix {
 
         //генеруємо матрицю з нуля
 		} else {
-			this.items = [[]];		
+			this.items = [[]];
 		}
 
         this.rows = options.rows || this.items.length;
-        this.cols = options.cols || this.items[0].length;    //змінити на перебір з пошуком максмального
+        this.cols = options.cols || U.colsInMatrix(this.items);
     }
 
     getElem() {
@@ -45,7 +47,7 @@ export default class Matrix {
 
         elem.innerHTML = this.DOMitems.outerHTML;
 
-        return this._elem = elem; 
+        return this._elem = elem;
     }
 
     renderItems() {
