@@ -36,7 +36,8 @@ import U from './U.js';                    //different utilities, hacks and help
                 matrixOfUniqueOp: null,                     //матриця унікальних операцій
                 groups: null,                               //групи із рядків з операціями
                 orderedGroups: null,                        //упорядковані групи
-                groupsWithModules: null                     //групи з модулями операцій
+                groupsWithModules: null,                    //групи з модулями операцій
+                orderedModules: null                        //упорядковані модулі
             };
 
             this.setUpListeners();
@@ -225,6 +226,23 @@ import U from './U.js';                    //different utilities, hacks and help
                 carouselIndicators.firstChild.classList.add("active");
                 carouselSlidesWrap.firstChild.classList.add("active");
             });
+
+            //Виводимо п'яті результати
+            let ordModulesBlock1 = document.getElementById("ordered-modules-block-1"),
+                str5 = `<table class='table table-bordered groups'>
+                           <tr>
+                               <th> № модуля </th>
+                               <th> Відповідні операції </th>
+                           </tr>`;
+            opts.ordModules.forEach( function(item, i){
+                str5 += `
+                           <tr>
+                               <td> ${ i+1 } </td>
+                               <td> ${ [...item].join(', ') } </td>
+                           </tr>`;
+            });
+            str5 += `</table>`;
+            ordModulesBlock1.innerHTML = str5;
         },
 
         submitForm: function (e) {
@@ -235,6 +253,7 @@ import U from './U.js';                    //different utilities, hacks and help
                 groups = app.dataState.groups,
                 orderedGroups = app.dataState.orderedGroups,
                 groupsWithModules = app.dataState.groupsWithModules,
+                orderedModules = app.dataState.orderedModules,
 
                 form = e.target;
 
@@ -249,13 +268,15 @@ import U from './U.js';                    //different utilities, hacks and help
             groups = app.calcMatrix2( matrixOfUniqueOp );
             orderedGroups = app.calcOrderedGroups(groups, matrixOfOperations);
             groupsWithModules = app.calcGrpsWithModules(orderedGroups, matrixOfOperations);
+            orderedModules = app.calcOrderedModules(groupsWithModules, matrixOfOperations);
 
             app.updateResult({
                 numOfUniqueOp: numOfUniqueOp,
                 matrixOfUniqueOp: matrixOfUniqueOp,
                 groups: groups,
                 ordGrps: orderedGroups,
-                grpsWithMod: groupsWithModules
+                grpsWithMod: groupsWithModules,
+                ordModules: orderedModules
             });
         },
 
@@ -1049,6 +1070,34 @@ import U from './U.js';                    //different utilities, hacks and help
                         return resArr;
                     }, []);
                 }
+            }
+        },
+
+        calcOrderedModules(groupsWithModules){
+            let modulesArr = fetchModulesArr(groupsWithModules);
+
+            //modulesArr = [];  //можна перевизначити так як треба
+
+            //відсортувати модулі
+
+            //повидаляти повтори і все що там лишнє
+
+            //!!!для тесту відображення, видалити коли calcOrderedModules буде дописано
+            modulesArr = [
+                new Set(["C3"]),
+                new Set(["T1", "T2", "C1"]),
+                new Set(["T3", "T4", "C3"])
+            ];
+
+            return modulesArr;
+
+
+            //дістаємо із отриманої структури даних потрібний масив
+            function fetchModulesArr(groupsWithModules){
+                return groupsWithModules.reduce( (resArr, gr, i) => {
+                    resArr.push(...gr.modules);
+                    return resArr;
+                }, []);
             }
         }
     };
