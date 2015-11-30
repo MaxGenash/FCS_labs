@@ -2,8 +2,8 @@
 <head lang="uk">
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>Лабораторна робота з ГКС2 №5</title>
-    <meta name="description" content="Лабораторна робота з ГКС2 №5">
+    <title>Лабораторна робота з ГКС2 №6</title>
+    <meta name="description" content="Лабораторна робота з ГКС2 №6">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- bower:css -->
     <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
@@ -19,7 +19,7 @@
 <div class="wrapper">
     <header class="navbar navbar-default navbar-static-top">
         <div class="container-fluid">
-            <h1 class="text-center"> Лабораторна робота з ГКС2 №5 </h1>
+            <h1 class="text-center"> Лабораторна робота з ГКС2 №6 </h1>
         </div>
     </header>
 
@@ -60,6 +60,12 @@
                             <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
                             <span class="sr-only">Next</span>
                         </a>
+                    </div>
+
+                    <div id="tech-structure-graph-block">
+                        <div class="graph-wrapper">
+                            Тут граф технологічної структури
+                        </div>
                     </div>
 
                 </div>
@@ -252,6 +258,19 @@
                         <p><strong> Оптимізовані модулі: </strong></p>
                         <div class="groups-block" id="ordered-modules-block-1">
                             Тут будуть оптимізовані модулі
+                        </div>
+                    </div>
+
+                    <div class="results-block col-xs-12 hidden">
+                        <p>
+                            <strong> Технологічна структура: </strong>
+                            <button id="btn-draw-tech-structure-graph" type="button" class="btn btn-default" data-toggle="modal" data-target="#graphCorouselModal"
+                                    aria-label="ShowGraph" title="Показати граф технологічної структури">
+                                <span class="glyphicon glyphicon-blackboard" aria-hidden="true"></span>
+                            </button>
+                        </p>
+                        <div class="groups-block" id="tech-structure-block-1">
+                            Тут буде технологічна структура
                         </div>
                     </div>
 

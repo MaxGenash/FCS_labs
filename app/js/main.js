@@ -37,7 +37,8 @@ import U from './U.js';                    //different utilities, hacks and help
                 groups: null,                               //групи із рядків з операціями
                 orderedGroups: null,                        //упорядковані групи
                 groupsWithModules: null,                    //групи з модулями операцій
-                orderedModules: null                        //упорядковані модулі
+                orderedModules: null,                       //упорядковані модулі
+                technologicalStructure: null                //технологічна структура
             };
 
             this.setUpListeners();
@@ -185,9 +186,13 @@ import U from './U.js';                    //different utilities, hacks and help
                 let groupNum = btn.dataset.groupNum,
                     carousel = document.getElementById("carousel-with-graph-states"),
                     carouselIndicators = carousel.getElementsByClassName("carousel-indicators")[0],
-                    carouselSlidesWrap = carousel.getElementsByClassName("carousel-inner")[0];
+                    carouselSlidesWrap = carousel.getElementsByClassName("carousel-inner")[0],
+                    techStrGraphBlock = document.getElementById("tech-structure-graph-block");
 
-                //очищаємо вмість блоків
+                carousel.classList.remove('hidden');
+                techStrGraphBlock.classList.add('hidden');
+
+                //очищаємо вміст блоків
                 while (carouselSlidesWrap.firstChild) {
                     carouselSlidesWrap.removeChild(carouselSlidesWrap.firstChild);
                 }
@@ -243,6 +248,48 @@ import U from './U.js';                    //different utilities, hacks and help
             });
             str5 += `</table>`;
             ordModulesBlock1.innerHTML = str5;
+
+            //Виводимо шості результати
+            //виводимо табличку з рузультатами
+            let technologicalStructureBlock1 = document.getElementById("technological-structure-block-1"),
+                str6 = `<table class='table table-bordered groups'>
+                           <tr>
+                               <th> № модуля </th>
+                               <th> Відповідні операції </th>
+                           </tr>`;
+            opts.ordModules.forEach( function(item, i){
+                str6 += `
+                           <tr>
+                               <td> ${ i+1 } </td>
+                               <td> ${ [...item].join(', ') } </td>
+                           </tr>`;
+            });
+            str6 += `</table>`;
+            technologicalStructureBlock1.innerHTML = str6;
+
+            //Малюємо граф при натисненні на кнопку
+            let drawTechStrGraphBtn = document.getElementById("btn-draw-tech-structure-graph");
+            drawTechStrGraphBtn.addEventListener("click", function(e){
+                let techStrGraphBlock = document.getElementById("tech-structure-graph-block"),
+                    graphWrapper = techStrGraphBlock.getElementsByClassName("graph-wrapper")[0],
+                    carouselBlock = document.getElementById("carousel-with-graph-states");
+
+                carouselBlock.classList.add('hidden');
+                techStrGraphBlock.classList.remove('hidden');
+
+                drawGraph({
+                    graphContainer: graphWrapper,
+                    nodesArr: techStructure.nodes,
+                    edgesArr: U.deepClone(techStructure.edges)
+                    //type: "Technological structure"
+                });
+            });
+
+            //Додати вершини Start і Finish з яких усі стрілки будуть виходить та входити
+            //Додати Label на стрілочки
+            //Додати можливість підсвітити весь шлях для кожного рядка операцій(всі стрілочки із однаковим Label)
+            //Додати можливість показати всі зв'язки для кожної вершини
+            //додати прямокутники для вершин і налаштувати правильне розташування стрілочок для них
         },
 
         submitForm: function (e) {
@@ -254,6 +301,7 @@ import U from './U.js';                    //different utilities, hacks and help
                 orderedGroups = app.dataState.orderedGroups,
                 groupsWithModules = app.dataState.groupsWithModules,
                 orderedModules = app.dataState.orderedModules,
+                techStructure = app.dataState.technologicalStructure,
 
                 form = e.target;
 
@@ -264,11 +312,12 @@ import U from './U.js';                    //different utilities, hacks and help
             //if( !app.validate(form) ) return;
 
             numOfUniqueOp = U.getArrOfUniqueVals( matrixOfOperations ).length;
-            matrixOfUniqueOp = app.solveForm1( matrixOfOperations );
-            groups = app.calcMatrix2( matrixOfUniqueOp );
+            matrixOfUniqueOp = app.calcMatrixOfUniqueOp( matrixOfOperations );
+            groups = app.calcGroups( matrixOfUniqueOp );
             orderedGroups = app.calcOrderedGroups(groups, matrixOfOperations);
             groupsWithModules = app.calcGrpsWithModules(orderedGroups, matrixOfOperations);
-            orderedModules = app.calcOrderedModules(groupsWithModules, matrixOfOperations);
+            orderedModules = app.calcOrderedModules(groupsWithModules);
+            techStructure = app.calcTechStructure(orderedModules, matrixOfOperations);
 
             app.updateResult({
                 numOfUniqueOp: numOfUniqueOp,
@@ -276,7 +325,8 @@ import U from './U.js';                    //different utilities, hacks and help
                 groups: groups,
                 ordGrps: orderedGroups,
                 grpsWithMod: groupsWithModules,
-                ordModules: orderedModules
+                ordModules: orderedModules,
+                techStructure: techStructure
             });
         },
 
@@ -302,7 +352,7 @@ import U from './U.js';                    //different utilities, hacks and help
          * На вході матриця рядків
          * Повертає матрицю чисел
          */
-        solveForm1: function(inpMatrix){
+        calcMatrixOfUniqueOp: function(inpMatrix){
             var i, j, k,                                     //ітератори
                 temp_i,temp_j,                               //тимчасові значення ітераторів
                 q,                                           //стільки рядків будемо перестрибувати
@@ -352,7 +402,7 @@ import U from './U.js';                    //different utilities, hacks and help
             return resultArr;
         },
 
-        calcMatrix2: function(arr){
+        calcGroups: function(arr){
             let fullSet = new Set(),	//множина з усіма елементами в усіх вже заповнених групах(треба щоб запобігати повторів у кожній групі)
                 resultsArr = [],
                 size = arr.length;		//скільки може бути елементів в групах
@@ -1125,6 +1175,104 @@ import U from './U.js';                    //different utilities, hacks and help
                     return resArr;
                 }, []);
             }
+        },
+
+        calcTechStructure(modules, matrixOfOperations){
+            let result = {
+                modules: [
+                    new Set(["F1", "F2", "T4"]),
+                    new Set(["C1", "C2", "P2"]),
+                    new Set(["T1", "T2", "T3"]),
+                    new Set(["C3"])
+                ],
+                connections: [
+                    [   //шлях(масив зв'язків для 1 рядка операцій)
+                        {source: 1, target: 2},
+                        {source: 2, target: 3},
+                        {source: 3, target: 0}
+                    ],
+                    [
+                        {source: 1, target: 2},
+                        {source: 2, target: 3},
+                        {source: 3, target: 1}
+                    ],
+                    [
+                        {source: 1, target: 2},
+                        {source: 2, target: 1},
+                        {source: 3, target: 0}
+                    ],
+                    [
+                        {source: 1, target: 2},
+                        {source: 2, target: 3},
+                        {source: 3, target: 0},
+                        {source: 0, target: 1}
+                    ],
+                    [
+                        {source: 0, target: 2},
+                        {source: 2, target: 3}
+                    ],
+                    [
+                        {source: 1, target: 2},
+                        {source: 2, target: 3},
+                        {source: 3, target: 0}
+                    ],
+                    [
+                        {source: 1, target: 2},
+                        {source: 2, target: 3},
+                        {source: 3, target: 0}
+                    ]
+                ],
+                inverseNum: 5
+            };
+
+
+            return result;
+        },
+
+        //трансформувати
+        makeTechStructureMV(techStruct){
+            let res = U.deepClone(techStruct);
+
+            //приклад структури даних
+            res = {
+                edges: [
+                    //від старта
+                    {source: 0, target: 1, label: "1", inverse: false  },   //label - номер шляху(рядка операцій)
+                    {source: 0, target: 1, label: "2", inverse: false  },
+                    {source: 0, target: 1, label: "7", inverse: false  },
+                    {source: 0, target: 1, label: "4", inverse: false  },
+                    {source: 0, target: 2, label: "3", inverse: false  },
+                    {source: 0, target: 3, label: "6", inverse: false  },
+                    {source: 0, target: 4, label: "5", inverse: false  },
+                    //між модулями
+                    {source: 1, target: 2, label: "1", inverse: false },
+                    {source: 2, target: 3, label: "1", inverse: false },
+                    {source: 3, target: 4, label: "1", inverse: false },
+                    //до фініша
+                    {source: 1, target: 5, label: "1", inverse: false },
+                    {source: 2, target: 5, label: "3", inverse: false },
+                    {source: 3, target: 5, label: "2", inverse: false },
+                    {source: 4, target: 5, label: "4", inverse: false },
+                    {source: 4, target: 5, label: "5", inverse: false },
+                    {source: 4, target: 5, label: "7", inverse: false },
+                    {source: 4, target: 5, label: "6", inverse: false }
+                ],
+                nodes: [
+                    "Start",
+                    "F1, F2, T4",
+                    "C1, C2, P2",
+                    "T1, T2, T3",
+                    "C3",
+                    "Finish"
+                ],
+                inverseNum: 5
+            };
+
+            //перетворити modules на nodes, перетворивши множини на рядки і додавши вершини start та finish
+
+            //
+
+            return res;
         }
     };
 

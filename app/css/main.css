@@ -172,9 +172,17 @@ footer .navbar .text-center{
     z-index: 2016;
 }
 
+.edge.inverse {
+    stroke: #e10044;
+}
+
 .arrowhead{
     fill: #9ecae1;
     stroke: #9ecae1;
+}
+
+.arrowhead.inverse{
+    stroke: #e10044;
 }
 
 
