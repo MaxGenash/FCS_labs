@@ -174,13 +174,38 @@ function isSubSet(set1, set2){
 
 
 
+function findAllPermutations(arr, index, buffer) {
+	if (typeof index == "undefined")
+		index = 0;
+	if (typeof buffer == "undefined")
+		buffer = [];
+	if (index >= arr.length)
+		return buffer;
+	for (var i = index; i < arr.length; i++)
+		buffer.push(toggleElements(arr, index, i));
+	return findAllPermutations(arr, index + 1, buffer);
+}
+
+function toggleElements(arr, j, index2) {
+	if (j != index2) {
+		var temp = arr[j];
+		arr[j] = arr[index2];
+		arr[index2] = temp;
+	}
+	return arr;
+}
+
+
+
+
 let U = {
 	deepEqual,
 	colsInMatrix,
 	getArrOfUniqueVals,
 	delRepeats,
 	deepClone,
-	isSubSet
+	isSubSet,
+	findAllPermutations
 };
 
 export default U;

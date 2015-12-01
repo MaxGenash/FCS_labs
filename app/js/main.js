@@ -1178,6 +1178,7 @@ import U from './U.js';                    //different utilities, hacks and help
         },
 
         calcTechStructure(modules, matrixOfOperations){
+            /*  Приклад структури даних результату
             let result = {
                 modules: [
                     new Set(["F1", "F2", "T4"]),
@@ -1185,55 +1186,87 @@ import U from './U.js';                    //different utilities, hacks and help
                     new Set(["T1", "T2", "T3"]),
                     new Set(["C3"])
                 ],
-                connections: [
-                    [   //шлях(масив зв'язків для 1 рядка операцій)
-                        {source: 1, target: 2},
-                        {source: 2, target: 3},
-                        {source: 3, target: 0}
-                    ],
-                    [
-                        {source: 1, target: 2},
-                        {source: 2, target: 3},
-                        {source: 3, target: 1}
-                    ],
-                    [
-                        {source: 1, target: 2},
-                        {source: 2, target: 1},
-                        {source: 3, target: 0}
-                    ],
-                    [
-                        {source: 1, target: 2},
-                        {source: 2, target: 3},
-                        {source: 3, target: 0},
-                        {source: 0, target: 1}
-                    ],
-                    [
-                        {source: 0, target: 2},
-                        {source: 2, target: 3}
-                    ],
-                    [
-                        {source: 1, target: 2},
-                        {source: 2, target: 3},
-                        {source: 3, target: 0}
-                    ],
-                    [
-                        {source: 1, target: 2},
-                        {source: 2, target: 3},
-                        {source: 3, target: 0}
-                    ]
+                ways: [
+                    [ 1,2,3,0 ], //шлях(масив зв'язків для 1 рядка операцій)
+                    [ 1,3,2,0 ],
+                    [ 1,2,3 ],
+                    [ 1,3,0 ],
+                    [ 1,2,3,0 ],
+                    [ 0,3 ],
+                    [ 0,1,2,3,0 ]
                 ],
                 inverseNum: 5
+            };  */
+
+            //знаходимо початковий вигляд технологічної структури
+            let bestModules = modules.slice(0),
+                { bestWays, minInverseNum } = formulateTechStr(...arguments);
+
+            //перестановки
+
+            for(mods of findAllPermutations(modules)){
+
+            }
+
+
+
+
+
+
+
+            return {
+                modules: bestModules,
+                ways: bestWays,
+                inverseNum: minInverseNum
             };
 
 
-            return result;
+            function formulateTechStr(modules, matrOp){
+                let ways = [],
+                    inverseNum = 0;
+
+                for(let i=0; i < matrOp.length; i++){
+                    let way = ways.push( [
+                      //  modules.find(m => m.has( matrOp[i][0] ))
+                    ] );
+                    for(let j=0; j < matrOp.length; j++){
+                        let modNum = modules.find(m => m.has( matrOp[i][j] ));
+                        if( !way[j-1] || way[j-1] !== modNum){
+                            way.push(modNum);
+                            if(way[j-1] > modNum)
+                                ++inverseNum
+                        }
+                    }
+
+                }
+
+                return {connections, inverseNum}
+            }
         },
 
         //трансформувати
         makeTechStructureMV(techStruct){
-            let res = U.deepClone(techStruct);
 
-            //приклад структури даних
+            let result = {
+                modules: [
+                    new Set(["F1", "F2", "T4"]),
+                    new Set(["C1", "C2", "P2"]),
+                    new Set(["T1", "T2", "T3"]),
+                    new Set(["C3"])
+                ],
+                ways: [
+                    [ 1,2,3,0 ], //шлях(масив зв'язків для 1 рядка операцій)
+                    [ 1,3,2,0 ],
+                    [ 1,2,3 ],
+                    [ 1,3,0 ],
+                    [ 1,2,3,0 ],
+                    [ 0,3 ],
+                    [ 0,1,2,3,0 ]
+                ],
+                inverseNum: 5
+            };
+
+            /*приклад структури даних
             res = {
                 edges: [
                     //від старта
@@ -1266,11 +1299,36 @@ import U from './U.js';                    //different utilities, hacks and help
                     "Finish"
                 ],
                 inverseNum: 5
+            };*/
+
+
+
+            let res = {
+                nodes: [],
+                edges: [],
+                inverseNum: techStruct.inverseNum
             };
+
+            res.nodes.push( "Start" );
+            let modulesStrings = techStruct.modules.map( (mod) => {
+                return [...mod].join(", ");
+            });
+            res.nodes.push(...modulesStrings);
+            res.nodes.push( "Finish" );
 
             //перетворити modules на nodes, перетворивши множини на рядки і додавши вершини start та finish
 
-            //
+            /*
+             //створюємо масив дуг
+             group.forEach( (row) => {   //кожен елемент групи - рядок операцій
+             for(let i = 1, arr = matrixOfOps[row]; i < arr.length; i++){
+             initialState.edges.push( {
+             source: initialState.nodes.indexOf(arr[i-1]),
+             target: initialState.nodes.indexOf(arr[i])
+             } );
+             }
+             });
+             */
 
             return res;
         }
