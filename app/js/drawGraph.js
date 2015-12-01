@@ -8,7 +8,8 @@
  * @param opts.graphContainer {String} контейнер, в який буде поміщено граф
  * @param opts.nodesArr {Array} [Object: {name: {String}}] мвсив вершин
  * @param opts.edgesArr {Array} [Object: {source: {String}, target: {String}}] масив дуг
- *
+ * @param opts.drawEdgeLabels {Boolean} чи малювати лейбли на ребрах
+ * @param opts.drawNodeLabels {Boolean} чи малювати лейбли на вершинах
  */
 export default function drawGraph(opts){
 	var initialW = opts.width || (window.innerWidth*0.8 > 800) ? window.innerWidth*0.8 : 800,
@@ -81,26 +82,55 @@ export default function drawGraph(opts){
 		.enter()
 		.append("circle")
 		.attr({
-			"class":"node"
+			"class": "node"
 		})
 		.on('dblclick', releaseNode)
 		.call(drag);
 
-	var nodelabels = containerInner.selectAll(".nodelabel")
-		.data(opts.nodesArr)
-		.enter()
-		.append("text")
-		.attr({
-			"x":function(d){return d.x;},
-			"y":function(d){return d.y;},
-			"class":"node-label",
-			"stroke":"black"
-		})
-		.text(function(d){
-			return d.name;
-		})
-		.on('dblclick', releaseNode)
-		.call(drag);
+	if(opts.drawNodeLabels){
+		var nodelabels = containerInner.selectAll(".nodelabel")
+			.data(opts.nodesArr)
+			.enter()
+			.append("text")
+			.attr({
+				"x":function(d){return d.x;},
+				"y":function(d){return d.y;},
+				"class":"node-label",
+				"stroke":"black"
+			})
+			.text(function(d){
+				return d.name;
+			})
+			.on('dblclick', releaseNode)
+			.call(drag);
+	}
+
+	if(opts.drawEdgeLabels) {
+		var edgelabels = containerInner.selectAll(".edgelabel")
+			.data(opts.edgesArr)
+			.enter()
+			.append('text')
+			.style("pointer-events", "none")
+			.attr({
+				'class': 'edgelabel',
+				'id': function (d, i) {
+					return 'edgelabel' + i
+				},
+				'dx': 20,
+				'dy': 0,
+				'font-size': 10,
+				'fill': 'black'
+			});
+
+		edgelabels.append('textPath')
+			.attr('xlink:href', function (d, i) {
+				return '#edge' + i
+			})
+			.style("pointer-events", "none")
+			.text(function (d, i) {
+				return d.label
+			});
+	}
 
 	//arrows
 	var arrows = containerInner.append('defs')
@@ -120,23 +150,54 @@ export default function drawGraph(opts){
 		.append('svg:path')
 		.attr('d', 'M 0,-5 L 10 ,0 L 0,5');
 
-	force.on("tick", function(){
+	force.on("tick", function() {
 		edges.attr({
-			"x1": function(d){return d.source.x;},
-			"y1": function(d){return d.source.y;},
-			"x2": function(d){return d.target.x;},
-			"y2": function(d){return d.target.y;}
+			"x1": function (d) {
+				return d.source.x;
+			},
+			"y1": function (d) {
+				return d.source.y;
+			},
+			"x2": function (d) {
+				return d.target.x;
+			},
+			"y2": function (d) {
+				return d.target.y;
+			}
 		});
 
 		nodes.attr({
-			"cx":function(d){return d.x;},
-			"cy":function(d){return d.y;}
+			"cx": function (d) {
+				return d.x;
+			},
+			"cy": function (d) {
+				return d.y;
+			}
 		});
 
-		nodelabels.attr({
-			"x": function(d) { return d.x; },
-			"y": function(d) { return d.y; }
-		});
+		if(opts.drawNodeLabels) {
+			nodelabels.attr({
+				"x": function (d) {
+					return d.x;
+				},
+				"y": function (d) {
+					return d.y;
+				}
+			});
+		}
+		if(opts.drawEdgeLabels) {
+			edgelabels.attr('transform', function (d, i) {
+				if (d.target.x < d.source.x) {
+					let bbox = this.getBBox(),
+						rx = bbox.x + bbox.width / 2,
+						ry = bbox.y + bbox.height / 2;
+					return 'rotate(180 ' + rx + ' ' + ry + ')';
+				}
+				else {
+					return 'rotate(0)';
+				}
+			});
+		}
 	});
 
 	function dragstarted(d) {
