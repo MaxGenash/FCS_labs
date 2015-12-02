@@ -174,27 +174,26 @@ function isSubSet(set1, set2){
 
 
 
-function findAllPermutations(arr, index, buffer) {
-	if (typeof index == "undefined")
-		index = 0;
-	if (typeof buffer == "undefined")
-		buffer = [];
-	if (index >= arr.length)
-		return buffer;
-	for (var i = index; i < arr.length; i++)
-		buffer.push(toggleElements(arr, index, i));
-	return findAllPermutations(arr, index + 1, buffer);
-}
+function findAllPermutations(inputArr) {
+	var results = [];
 
-function toggleElements(arr, j, index2) {
-	if (j != index2) {
-		var temp = arr[j];
-		arr[j] = arr[index2];
-		arr[index2] = temp;
+	function permute(arr, memo) {
+		var cur, memo = memo || [];
+
+		for (var i = 0; i < arr.length; i++) {
+			cur = arr.splice(i, 1);
+			if (arr.length === 0) {
+				results.push(memo.concat(cur));
+			}
+			permute(arr.slice(), memo.concat(cur));
+			arr.splice(i, 0, cur[0]);
+		}
+
+		return results;
 	}
-	return arr;
-}
 
+	return permute(inputArr);
+}
 
 
 

@@ -223,7 +223,8 @@ import U from './U.js';                    //different utilities, hacks and help
                                 item = item.join(", ");
                             return {name: item};
                         }),
-                        edgesArr: U.deepClone(graph.edges)
+                        edgesArr: U.deepClone(graph.edges),
+                        drawNodeLabels: true
                     });
                 });
 
@@ -250,24 +251,44 @@ import U from './U.js';                    //different utilities, hacks and help
             ordModulesBlock1.innerHTML = str5;
 
             //Виводимо шості результати
-            //виводимо табличку з рузультатами
-            let technologicalStructureBlock1 = document.getElementById("technological-structure-block-1"),
+            //Кількість зворотніх зв'язків
+            document.getElementById("num-of-inverse-connections").innerText = opts.techStructure.inverseNum;
+
+            //виводимо табличку з порядком модулів
+            let techStructureModulesBlock1 = document.getElementById("tech-structure-modules-block-1"),
                 str6 = `<table class='table table-bordered groups'>
                            <tr>
                                <th> № модуля </th>
                                <th> Відповідні операції </th>
                            </tr>`;
-            opts.ordModules.forEach( function(item, i){
+            opts.techStructure.nodes.forEach( function(item, i){
                 str6 += `
                            <tr>
-                               <td> ${ i+1 } </td>
-                               <td> ${ [...item].join(', ') } </td>
+                               <td> ${ i } </td>
+                               <td> ${ item.name } </td>
                            </tr>`;
             });
             str6 += `</table>`;
-            technologicalStructureBlock1.innerHTML = str6;
+            techStructureModulesBlock1.innerHTML = str6;
 
-            //Малюємо граф при натисненні на кнопку
+            //виводимо табличку із шляхами проходу по модулям
+            let techStructureWaysBlock1 = document.getElementById("tech-structure-ways-block-1"),
+                str7 = `<table class='table table-bordered groups'>
+                           <tr>
+                               <th>№ рядка операцій </th>
+                               <th>Шляхи проходження по модулям </th>
+                           </tr>`;
+            opts.techStructure.ways.forEach( function(way, i){
+                str7 += `
+                           <tr>
+                               <td> ${ i+1 } </td>
+                               <td> ${ way } </td>
+                           </tr>`;
+            });
+            str7 += `</table>`;
+            techStructureWaysBlock1.innerHTML = str7;
+
+            //Малюємо граф усієї технологічної структури при натисненні на відповідну кнопку
             let drawTechStrGraphBtn = document.getElementById("btn-draw-tech-structure-graph");
             drawTechStrGraphBtn.addEventListener("click", function(e){
                 let techStrGraphBlock = document.getElementById("tech-structure-graph-block"),
@@ -277,15 +298,17 @@ import U from './U.js';                    //different utilities, hacks and help
                 carouselBlock.classList.add('hidden');
                 techStrGraphBlock.classList.remove('hidden');
 
+                graphWrapper.HTML = "";
+
                 drawGraph({
                     graphContainer: graphWrapper,
-                    nodesArr: techStructure.nodes,
-                    edgesArr: U.deepClone(techStructure.edges)
-                    //type: "Technological structure"
+                    nodesArr: opts.techStructure.nodes,
+                    edgesArr: U.deepClone(opts.techStructure.edges),
+                    drawNodeLabels: true,
+                    drawEdgeLabels: true
                 });
             });
 
-            //Додати вершини Start і Finish з яких усі стрілки будуть виходить та входити
             //Додати Label на стрілочки
             //Додати можливість підсвітити весь шлях для кожного рядка операцій(всі стрілочки із однаковим Label)
             //Додати можливість показати всі зв'язки для кожної вершини
@@ -318,6 +341,8 @@ import U from './U.js';                    //different utilities, hacks and help
             groupsWithModules = app.calcGrpsWithModules(orderedGroups, matrixOfOperations);
             orderedModules = app.calcOrderedModules(groupsWithModules);
             techStructure = app.calcTechStructure(orderedModules, matrixOfOperations);
+            //викликаємо функцію що перетворить дані в зручний для відображення вигляд
+            let techStrForView = app.transformTechStrForView(techStructure);
 
             app.updateResult({
                 numOfUniqueOp: numOfUniqueOp,
@@ -326,7 +351,7 @@ import U from './U.js';                    //different utilities, hacks and help
                 ordGrps: orderedGroups,
                 grpsWithMod: groupsWithModules,
                 ordModules: orderedModules,
-                techStructure: techStructure
+                techStructure: techStrForView
             });
         },
 
@@ -1177,7 +1202,7 @@ import U from './U.js';                    //different utilities, hacks and help
             }
         },
 
-        calcTechStructure(modules, matrixOfOperations){
+        calcTechStructure(modules, matrOp){
             /*  Приклад структури даних результату
             let result = {
                 modules: [
@@ -1199,20 +1224,18 @@ import U from './U.js';                    //different utilities, hacks and help
             };  */
 
             //знаходимо початковий вигляд технологічної структури
-            let bestModules = modules.slice(0),
-                { bestWays, minInverseNum } = formulateTechStr(...arguments);
+            let bestModules = modules.slice(0);
+            let [ bestWays, minInverseNum ] = formulateTechStr(bestModules, matrOp);
 
-            //перестановки
-
-            for(mods of findAllPermutations(modules)){
-
+            //робимо усі n! перестановок в пошуку найкращої комбінації
+            for(let tmpModules of U.findAllPermutations(modules)){
+                let [ tmpWays, tmpInverseNum ] = formulateTechStr(tmpModules, matrOp);
+                if(tmpInverseNum < minInverseNum){
+                    bestModules = tmpModules;
+                    bestWays = tmpWays;
+                    minInverseNum = tmpInverseNum;
+                }
             }
-
-
-
-
-
-
 
             return {
                 modules: bestModules,
@@ -1225,27 +1248,29 @@ import U from './U.js';                    //different utilities, hacks and help
                 let ways = [],
                     inverseNum = 0;
 
+                //Пробігаємо по рядкам операцій, рахуючи для кожного рядка шлях по модулям
                 for(let i=0; i < matrOp.length; i++){
-                    let way = ways.push( [
-                      //  modules.find(m => m.has( matrOp[i][0] ))
-                    ] );
-                    for(let j=0; j < matrOp.length; j++){
-                        let modNum = modules.find(m => m.has( matrOp[i][j] ));
-                        if( !way[j-1] || way[j-1] !== modNum){
-                            way.push(modNum);
-                            if(way[j-1] > modNum)
-                                ++inverseNum
+                    //додаємо у масив шляхів, шлях для цього рядка операцій із початковим елементом шляху
+                    // (номером першого модуля в який входть перша операція)
+                    ways.push(
+                        Array.of(   modules.findIndex(m => m.has( matrOp[i][0] ))   )
+                    );
+                    for(let j=1; j < matrOp[i].length; j++){
+                        let modNum = modules.findIndex(m => m.has( matrOp[i][j] ));
+                        if( ways[i][ ways[i].length-1 ] !== modNum){    //якщо операція[i][j] виконується вже в іншому модулі
+                            if(ways[i][ ways[i].length-1 ] > modNum)    //якщо це зворотній зв'язок, інкрементуємо лічильник
+                                ++inverseNum;
+                            ways[i].push(modNum);
                         }
                     }
-
                 }
 
-                return {connections, inverseNum}
+                return [ways, inverseNum];
             }
         },
 
-        //трансформувати
-        makeTechStructureMV(techStruct){
+        //трансформувати обраховані дані в зручний для відображення вигляд
+        transformTechStrForView(techStr){
 
             let result = {
                 modules: [
@@ -1306,29 +1331,62 @@ import U from './U.js';                    //different utilities, hacks and help
             let res = {
                 nodes: [],
                 edges: [],
-                inverseNum: techStruct.inverseNum
+                inverseNum: techStr.inverseNum,
+                ways: []
             };
 
-            res.nodes.push( "Start" );
-            let modulesStrings = techStruct.modules.map( (mod) => {
-                return [...mod].join(", ");
+            //перетворити modules на nodes, перетворивши множини на рядки і додавши вершини start та finish
+            res.nodes.push( {name: "Start"} );
+            let modulesStrings = techStr.modules.map( (mod) => {
+                return {name: [...mod].join(", ") };
             });
             res.nodes.push(...modulesStrings);
-            res.nodes.push( "Finish" );
+            res.nodes.push( {name: "Finish"} );
 
-            //перетворити modules на nodes, перетворивши множини на рядки і додавши вершини start та finish
 
-            /*
-             //створюємо масив дуг
-             group.forEach( (row) => {   //кожен елемент групи - рядок операцій
-             for(let i = 1, arr = matrixOfOps[row]; i < arr.length; i++){
-             initialState.edges.push( {
-             source: initialState.nodes.indexOf(arr[i-1]),
-             target: initialState.nodes.indexOf(arr[i])
-             } );
-             }
-             });
-             */
+            //створюємо масив дуг, перетворюючи двомірний масив ways у одномірний масив ребер і враховуючи нові вершини Start та Finish
+            techStr.ways.forEach( (way, index) => {
+                //ребро від вершини Start до першого модуля
+                res.edges.push( {
+                    source: 0,
+                    target: way[0] + 1,  //+1, бо додали вершину Start на початок
+                    label: index+1,      //+1 бо користувачу зручніша нумерація рядків з 1 а не з 0
+                    inverse: false
+                } );
+                //ребра між модулями всередині технологічної структури
+                for(let i = 1; i < way.length; i++){
+                    res.edges.push( {
+                        source: way[i-1] + 1,
+                        target: way[i] + 1,
+                        label: index+1,
+                        inverse: way[i-1] > way[i]
+                    } );
+                }
+                //ребро від останнього модуля до вершини Finish
+                res.edges.push( {
+                    source: way[way.length-1] + 1,
+                    target: res.nodes.length-1,     //№ вершини Finish
+                    label: index+1,
+                    inverse: false
+                } );
+            });
+
+            //видаляємо повтори, зклеюємо лейбли для однакових шляхів різних рядків
+            res.edges = res.edges.reduce( (newArr, edge, i) => {
+                let edgeIndex = newArr.findIndex(el => (el.source === edge.source) && (el.target === edge.target) );
+                //якщо в новому(перетвореному) масиві ще нема такого ребра
+                if( edgeIndex < 0)
+                    newArr.push(edge);
+                //якщо в новому масиві є ребро з таким source і target але іншим label
+                else if( newArr[edgeIndex].label !== edge.label)
+                    newArr[edgeIndex].label += (", " + edge.label);
+                return newArr;
+            }, []);
+
+            //Перетворюємо масив шляхів у зручний для користувача вигляд
+            res.ways = techStr.ways.map( (way, i) => {
+                return "Start → " + way.map( el => el+1 ).join(" → ") + " → Finish";
+            });
 
             return res;
         }
