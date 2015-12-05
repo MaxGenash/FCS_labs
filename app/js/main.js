@@ -260,15 +260,23 @@ import U from './U.js';                    //different utilities, hacks and help
                            <tr>
                                <th> № модуля </th>
                                <th> Відповідні операції </th>
-                           </tr>`;
-            opts.techStructure.nodes.forEach( function(item, i){
+                           </tr>
+                           <tr>
+                               <td colspan="2" class="text-center"> Start </td>
+                           </tr>
+                           `;
+            for(let i = 1, nodes = opts.techStructure.nodes; i < nodes.length -1; i++) {
                 str6 += `
                            <tr>
                                <td> ${ i } </td>
-                               <td> ${ item.name } </td>
+                               <td> ${ nodes[i].name } </td>
                            </tr>`;
-            });
-            str6 += `</table>`;
+            }
+            str6 += `
+                           <tr>
+                               <td colspan="2" class="text-center"> Finish </td>
+                           </tr>
+                        </table>`;
             techStructureModulesBlock1.innerHTML = str6;
 
             //виводимо табличку із шляхами проходу по модулям
@@ -298,7 +306,7 @@ import U from './U.js';                    //different utilities, hacks and help
                 carouselBlock.classList.add('hidden');
                 techStrGraphBlock.classList.remove('hidden');
 
-                graphWrapper.HTML = "";
+                graphWrapper.innerHTML = "";
 
                 drawGraph({
                     graphContainer: graphWrapper,
@@ -1373,13 +1381,16 @@ import U from './U.js';                    //different utilities, hacks and help
 
             //видаляємо повтори, зклеюємо лейбли для однакових шляхів різних рядків
             res.edges = res.edges.reduce( (newArr, edge, i) => {
-                let edgeIndex = newArr.findIndex(el => (el.source === edge.source) && (el.target === edge.target) );
+                let edgeIndex = newArr.findIndex(el => (el.source === edge.source) && (el.target === edge.target) ),
+                    reverseEdgeIndex = newArr.findIndex(el => (el.source === edge.target) && (el.target === edge.source) );
                 //якщо в новому(перетвореному) масиві ще нема такого ребра
                 if( edgeIndex < 0)
                     newArr.push(edge);
                 //якщо в новому масиві є ребро з таким source і target але іншим label
                 else if( newArr[edgeIndex].label !== edge.label)
                     newArr[edgeIndex].label += (", " + edge.label);
+                else if( edgeIndex >= 0 &&  newArr[reverseEdgeIndex].label !== edge.label)
+                    newArr[reverseEdgeIndex].label += (", " + edge.label);
                 return newArr;
             }, []);
 

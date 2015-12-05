@@ -116,17 +116,11 @@ export default function drawGraph(opts){
 				'id': function (d, i) {
 					return 'edgelabel' + i
 				},
-				'dx': 20,
-				'dy': 0,
-				'font-size': 10,
+		//		'dx': 20,
+		//		'dy': 0,
+				'font-size': "0.8em",
 				'fill': 'black'
-			});
-
-		edgelabels.append('textPath')
-			.attr('xlink:href', function (d, i) {
-				return '#edge' + i
 			})
-			.style("pointer-events", "none")
 			.text(function (d, i) {
 				return d.label
 			});
@@ -186,17 +180,21 @@ export default function drawGraph(opts){
 			});
 		}
 		if(opts.drawEdgeLabels) {
-			edgelabels.attr('transform', function (d, i) {
-				if (d.target.x < d.source.x) {
-					let bbox = this.getBBox(),
-						rx = bbox.x + bbox.width / 2,
-						ry = bbox.y + bbox.height / 2;
-					return 'rotate(180 ' + rx + ' ' + ry + ')';
-				}
-				else {
-					return 'rotate(0)';
-				}
-			});
+			edgelabels
+				.attr({
+					"x": function(d) { return d.source.x + (d.target.x - d.source.x)/2; },
+					"y": function(d) { return d.source.y + (d.target.y - d.source.y)/2; }//,
+					/*'transform': function (d, i){
+						if(d.target.x < d.source.x) {
+							let bbox = this.getBBox(),
+								rx = bbox.x + bbox.width / 2,
+								ry = bbox.y + bbox.height / 2;
+							return 'rotate(180 ' + rx + ' ' + ry + ')';
+						} else {
+							return 'rotate(0)';
+						}
+					}*/
+				})
 		}
 	});
 
