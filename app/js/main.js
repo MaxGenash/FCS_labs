@@ -185,10 +185,15 @@ import U from './U.js';                    //different utilities, hacks and help
 
                 let groupNum = btn.dataset.groupNum,
                     carousel = document.getElementById("carousel-with-graph-states"),
+                    modalTitle = document.getElementById("myModalTitle"),
                     carouselIndicators = carousel.getElementsByClassName("carousel-indicators")[0],
                     carouselSlidesWrap = carousel.getElementsByClassName("carousel-inner")[0],
                     techStrGraphBlock = document.getElementById("tech-structure-graph-block");
 
+                //заголовок модального вікна
+                modalTitle.innerText = "Граф групи №" + groupNum;
+
+                //ховаємо блок для технологічної структури, показуємо слайдер для графів
                 carousel.classList.remove('hidden');
                 techStrGraphBlock.classList.add('hidden');
 
@@ -258,17 +263,21 @@ import U from './U.js';                    //different utilities, hacks and help
             let techStructureModulesBlock1 = document.getElementById("tech-structure-modules-block-1"),
                 str6 = `<table class='table table-bordered groups'>
                            <tr>
-                               <th> № модуля </th>
-                               <th> Відповідні операції </th>
-                           </tr>`;
-            opts.techStructure.nodes.forEach( function(item, i){
-                str6 += `
+                               <th> № модуля - Відповідні операції </th>
+                           </tr>
                            <tr>
-                               <td> ${ i } </td>
-                               <td> ${ item.name } </td>
+                               <td> Start </td>
+                           </tr>
+                           `;
+            for(let i = 1, nodes = opts.techStructure.nodes; i < nodes.length -1; i++) {
+                str6 += `  <tr>
+                               <td> ${ nodes[i].name } </td>
                            </tr>`;
-            });
-            str6 += `</table>`;
+            }
+            str6 += `      <tr>
+                               <td> Finish </td>
+                           </tr>
+                        </table>`;
             techStructureModulesBlock1.innerHTML = str6;
 
             //виводимо табличку із шляхами проходу по модулям
@@ -293,19 +302,25 @@ import U from './U.js';                    //different utilities, hacks and help
             drawTechStrGraphBtn.addEventListener("click", function(e){
                 let techStrGraphBlock = document.getElementById("tech-structure-graph-block"),
                     graphWrapper = techStrGraphBlock.getElementsByClassName("graph-wrapper")[0],
-                    carouselBlock = document.getElementById("carousel-with-graph-states");
+                    carouselBlock = document.getElementById("carousel-with-graph-states"),
+                    modalTitle = document.getElementById("myModalTitle");
 
+                //заголовок модального вікна
+                modalTitle.innerText = "Граф технологічної структури зі шляхами всіх рядків операцій";
+
+                //ховаємо слайдер для графів, показуємо блок для технологічної структури
                 carouselBlock.classList.add('hidden');
                 techStrGraphBlock.classList.remove('hidden');
 
-                graphWrapper.HTML = "";
+                graphWrapper.innerHTML = "";
 
                 drawGraph({
                     graphContainer: graphWrapper,
                     nodesArr: opts.techStructure.nodes,
                     edgesArr: U.deepClone(opts.techStructure.edges),
                     drawNodeLabels: true,
-                    drawEdgeLabels: true
+                    drawEdgeLabels: true,
+                    curvedEdges: true
                 });
             });
 
@@ -1271,26 +1286,6 @@ import U from './U.js';                    //different utilities, hacks and help
 
         //трансформувати обраховані дані в зручний для відображення вигляд
         transformTechStrForView(techStr){
-
-            let result = {
-                modules: [
-                    new Set(["F1", "F2", "T4"]),
-                    new Set(["C1", "C2", "P2"]),
-                    new Set(["T1", "T2", "T3"]),
-                    new Set(["C3"])
-                ],
-                ways: [
-                    [ 1,2,3,0 ], //шлях(масив зв'язків для 1 рядка операцій)
-                    [ 1,3,2,0 ],
-                    [ 1,2,3 ],
-                    [ 1,3,0 ],
-                    [ 1,2,3,0 ],
-                    [ 0,3 ],
-                    [ 0,1,2,3,0 ]
-                ],
-                inverseNum: 5
-            };
-
             /*приклад структури даних
             res = {
                 edges: [
@@ -1323,10 +1318,17 @@ import U from './U.js';                    //different utilities, hacks and help
                     "C3",
                     "Finish"
                 ],
-                inverseNum: 5
+                inverseNum: 5,
+                ways: [
+                    [ 1,2,3,0 ], //шлях(масив зв'язків для 1 рядка операцій)
+                    [ 1,3,2,0 ],
+                    [ 1,2,3 ],
+                    [ 1,3,0 ],
+                    [ 1,2,3,0 ],
+                    [ 0,3 ],
+                    [ 0,1,2,3,0 ]
+                ]
             };*/
-
-
 
             let res = {
                 nodes: [],
@@ -1337,12 +1339,11 @@ import U from './U.js';                    //different utilities, hacks and help
 
             //перетворити modules на nodes, перетворивши множини на рядки і додавши вершини start та finish
             res.nodes.push( {name: "Start"} );
-            let modulesStrings = techStr.modules.map( (mod) => {
-                return {name: [...mod].join(", ") };
+            let modulesStrings = techStr.modules.map( (mod, i) => {
+                return {name: (i+1) + " - " + [...mod].join(", ") };
             });
             res.nodes.push(...modulesStrings);
             res.nodes.push( {name: "Finish"} );
-
 
             //створюємо масив дуг, перетворюючи двомірний масив ways у одномірний масив ребер і враховуючи нові вершини Start та Finish
             techStr.ways.forEach( (way, index) => {
@@ -1378,7 +1379,7 @@ import U from './U.js';                    //different utilities, hacks and help
                 if( edgeIndex < 0)
                     newArr.push(edge);
                 //якщо в новому масиві є ребро з таким source і target але іншим label
-                else if( newArr[edgeIndex].label !== edge.label)
+                else if( edgeIndex >= 0 && newArr[edgeIndex].label !== edge.label)
                     newArr[edgeIndex].label += (", " + edge.label);
                 return newArr;
             }, []);

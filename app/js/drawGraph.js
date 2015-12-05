@@ -6,10 +6,11 @@
  * @param opts.width {Number} ширина полотна
  * @param opts.height {Number} висота полотна
  * @param opts.graphContainer {String} контейнер, в який буде поміщено граф
- * @param opts.nodesArr {Array} [Object: {name: {String}}] мвсив вершин
+ * @param opts.nodesArr {Array} [Object: {name: {String}}] масив вершин, name - лейбл на вершинах
  * @param opts.edgesArr {Array} [Object: {source: {String}, target: {String}}] масив дуг
- * @param opts.drawEdgeLabels {Boolean} чи малювати лейбли на ребрах
- * @param opts.drawNodeLabels {Boolean} чи малювати лейбли на вершинах
+ * @param opts.drawEdgeLabels {Boolean} чи малювати лейбли на ребрах (true - малювати)
+ * @param opts.drawNodeLabels {Boolean} чи малювати лейбли на вершинах (true - малювати)
+ * @param opts.curvedEdges {Boolean} чи робити ребра зігнутими (true - робити)
  */
 export default function drawGraph(opts){
 	var initialW = opts.width || (window.innerWidth*0.8 > 800) ? window.innerWidth*0.8 : 800,
@@ -64,19 +65,28 @@ export default function drawGraph(opts){
 		.gravity(0.1)
 		.start();
 
-	var edges = containerInner.selectAll("line")
-		.data(opts.edgesArr)
-		.enter()
-		.append("line")
-		.attr({
-			'id': function(d,i) {return 'edge'+i},
-			'class': "edge",
-			'marker-end': 'url(#arrowhead)'
-		})
-		.style({
-			"pointer-events": "none"
-		});
+	//edges
+	var edges;
+	if(opts.curvedEdges) {
+		edges = containerInner.selectAll("path")
+			.data(opts.edgesArr)
+			.enter()
+			.append("svg:path");
+	} else {
+		edges = containerInner.selectAll("line")
+			.data(opts.edgesArr)
+			.enter()
+			.append("line");
+	}
+	edges.attr({
+		'id': function(d,i) {return 'edge'+i},
+		'class': "edge",
+		'marker-end': 'url(#arrowhead)'
+	}).style({
+		"pointer-events": "none"
+	});
 
+	//nodes
 	var nodes = containerInner.selectAll("circle")
 		.data(opts.nodesArr)
 		.enter()
@@ -87,6 +97,7 @@ export default function drawGraph(opts){
 		.on('dblclick', releaseNode)
 		.call(drag);
 
+	//node labels
 	if(opts.drawNodeLabels){
 		var nodelabels = containerInner.selectAll(".nodelabel")
 			.data(opts.nodesArr)
@@ -105,31 +116,24 @@ export default function drawGraph(opts){
 			.call(drag);
 	}
 
+	//edge labels
 	if(opts.drawEdgeLabels) {
 		var edgelabels = containerInner.selectAll(".edgelabel")
 			.data(opts.edgesArr)
 			.enter()
-			.append('text')
+			.append("text")
 			.style("pointer-events", "none")
 			.attr({
 				'class': 'edgelabel',
-				'id': function (d, i) {
-					return 'edgelabel' + i
-				},
-				'dx': 20,
-				'dy': 0,
-				'font-size': 10,
-				'fill': 'black'
-			});
-
-		edgelabels.append('textPath')
-			.attr('xlink:href', function (d, i) {
-				return '#edge' + i
+				'font-size': "0.8em",
+				'fill': 'black',
+				'text-anchor': 'start',
+				'x': 50,
+				'y': -20
 			})
-			.style("pointer-events", "none")
-			.text(function (d, i) {
-				return d.label
-			});
+			.append("textPath")
+			.attr("xlink:href", function(d,i) { return "#edge" + i; })
+			.text(function (d, i) { return d.label });
 	}
 
 	//arrows
@@ -151,51 +155,37 @@ export default function drawGraph(opts){
 		.attr('d', 'M 0,-5 L 10 ,0 L 0,5');
 
 	force.on("tick", function() {
-		edges.attr({
-			"x1": function (d) {
-				return d.source.x;
-			},
-			"y1": function (d) {
-				return d.source.y;
-			},
-			"x2": function (d) {
-				return d.target.x;
-			},
-			"y2": function (d) {
-				return d.target.y;
-			}
-		});
+		if(opts.curvedEdges) {
+			edges.attr("d", function (d) {
+				var reverseEdgeIndex = opts.edgesArr.findIndex(el => (el.source === d.target) && (el.target === d.source) );
+				if(reverseEdgeIndex < 0){
+					return "M" + d.source.x + "," + d.source.y + "L" + d.target.x + "," + d.target.y ;
+				} else {
+					var dx = d.target.x - d.source.x,
+						dy = d.target.y - d.source.y,
+						dr = Math.sqrt(dx * dx + dy * dy);
+					return "M" + d.source.x + "," + d.source.y +
+						"A" + 2*dr + "," + 2*dr + " 0 0,1 " + d.target.x + "," + d.target.y;
+				}
+			});
+		} else {
+			edges.attr({
+				"x1": function (d) { return d.source.x; },
+				"y1": function (d) { return d.source.y; },
+				"x2": function (d) { return d.target.x; },
+				"y2": function (d) { return d.target.y; }
+			});
+		}
 
 		nodes.attr({
-			"cx": function (d) {
-				return d.x;
-			},
-			"cy": function (d) {
-				return d.y;
-			}
+			"cx": function (d) { return d.x; },
+			"cy": function (d) { return d.y; }
 		});
 
 		if(opts.drawNodeLabels) {
 			nodelabels.attr({
-				"x": function (d) {
-					return d.x;
-				},
-				"y": function (d) {
-					return d.y;
-				}
-			});
-		}
-		if(opts.drawEdgeLabels) {
-			edgelabels.attr('transform', function (d, i) {
-				if (d.target.x < d.source.x) {
-					let bbox = this.getBBox(),
-						rx = bbox.x + bbox.width / 2,
-						ry = bbox.y + bbox.height / 2;
-					return 'rotate(180 ' + rx + ' ' + ry + ')';
-				}
-				else {
-					return 'rotate(0)';
-				}
+				"x": function (d) { return d.x; },
+				"y": function (d) { return d.y; }
 			});
 		}
 	});
