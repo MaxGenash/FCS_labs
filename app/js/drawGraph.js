@@ -43,7 +43,6 @@ export default function drawGraph(opts){
 		.call(zoom);
 
 	resize();
-	//window.focus();
 	d3.select(window).on("resize", resize);
 
 	var rect = svg.append("rect")
@@ -106,8 +105,7 @@ export default function drawGraph(opts){
 			.attr({
 				"x":function(d){return d.x;},
 				"y":function(d){return d.y;},
-				"class":"node-label",
-				"stroke":"black"
+				"class":"node-label"
 			})
 			.text(function(d){
 				return d.name;
@@ -118,15 +116,13 @@ export default function drawGraph(opts){
 
 	//edge labels
 	if(opts.drawEdgeLabels) {
-		var edgelabels = containerInner.selectAll(".edgelabel")
+		var edgelabels = containerInner.selectAll(".edge-label")
 			.data(opts.edgesArr)
 			.enter()
 			.append("text")
 			.style("pointer-events", "none")
 			.attr({
-				'class': 'edgelabel',
-				'font-size': "0.8em",
-				'fill': 'black',
+				'class': 'edge-label',
 				'text-anchor': 'start',
 				'x': 50,
 				'y': -20
@@ -153,19 +149,50 @@ export default function drawGraph(opts){
 		})
 		.append('svg:path')
 		.attr('d', 'M 0,-5 L 10 ,0 L 0,5');
+	var arrowsRed = containerInner.select("defs")
+		.append('marker')
+		.attr({
+			'id': "arrowhead-inverse-edge",
+			'class': "arrowhead-inverse-edge",
+			'viewBox':'-0 -5 10 10',
+			'refX':25,
+			'refY':0,
+			//'markerUnits':'strokeWidth',
+			'orient':'auto',
+			'markerWidth':10,
+			'markerHeight':10,
+			'xoverflow':'visible'
+		})
+		.append('svg:path')
+		.attr('d', 'M 0,-5 L 10 ,0 L 0,5');
 
 	force.on("tick", function() {
 		if(opts.curvedEdges) {
-			edges.attr("d", function (d) {
-				var reverseEdgeIndex = opts.edgesArr.findIndex(el => (el.source === d.target) && (el.target === d.source) );
-				if(reverseEdgeIndex < 0){
-					return "M" + d.source.x + "," + d.source.y + "L" + d.target.x + "," + d.target.y ;
-				} else {
-					var dx = d.target.x - d.source.x,
-						dy = d.target.y - d.source.y,
-						dr = Math.sqrt(dx * dx + dy * dy);
-					return "M" + d.source.x + "," + d.source.y +
-						"A" + 2*dr + "," + 2*dr + " 0 0,1 " + d.target.x + "," + d.target.y;
+			edges.attr({
+				"d": function (d) {
+					//якщо у нас є обернений зв'язок, то малюємо зігнуті ребра, інакше прямі
+					var reverseEdgeIndex = opts.edgesArr.findIndex(el => (el.source.index === d.target.index) && (el.target.index === d.source.index));
+					if (reverseEdgeIndex < 0) {
+						return "M" + d.source.x + "," + d.source.y + "L" + d.target.x + "," + d.target.y;
+					} else {
+						var dx = d.target.x - d.source.x,
+							dy = d.target.y - d.source.y,
+							dr = Math.sqrt(dx * dx + dy * dy);
+						return "M" + d.source.x + "," + d.source.y +
+							"A" + 2 * dr + "," + 2 * dr + " 0 0,1 " + d.target.x + "," + d.target.y;
+					}
+				},
+				"class": function (d) {
+					if(d.source.index > d.target.index)
+						return "edge inverse";
+					else
+						return "edge";
+				},
+				'marker-end': function (d) {
+					if(d.source.index > d.target.index)
+						return 'url(#arrowhead-inverse-edge)';
+					else
+						return 'url(#arrowhead)';
 				}
 			});
 		} else {

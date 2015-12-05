@@ -164,6 +164,7 @@ footer .navbar .text-center{
 .node-label {
     text-anchor: middle;
     cursor: pointer;
+    color: black;
 }
 
 .edge {
@@ -176,13 +177,19 @@ footer .navbar .text-center{
     stroke: #e10044;
 }
 
-.arrowhead{
-    fill: #9ecae1;
-    stroke: #9ecae1;
+.edge-label {
+    font-size: 0.8em;
+    color: black;
 }
 
-.arrowhead.inverse{
+.arrowhead{
+    stroke: #9ecae1;
+    fill: #9ecae1;
+}
+
+.arrowhead-inverse-edge{
     stroke: #e10044;
+    fill: #e10044;
 }
 
 
