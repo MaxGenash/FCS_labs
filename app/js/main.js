@@ -453,7 +453,7 @@ import U from './U.js';                    //different utilities, hacks and help
         calcGroups: function(arr){
             let fullSet = new Set(),	//множина з усіма елементами в усіх вже заповнених групах(треба щоб запобігати повторів у кожній групі)
                 resultsArr = [],
-                size = arr.length;		//скільки може бути елементів в групах
+                maxSize = arr.length;   //скільки може бути елементів в групах
 
             //заповнюємо чергу із елементів у нижньому трикутнику та їх індексів
             let sortedQueue = [];
@@ -465,70 +465,52 @@ import U from './U.js';                    //different utilities, hacks and help
                 }
             }
             //сортуємо щоб потім перебирати із найбільших елементів до найменших
-            sortedQueue.sort(function(a, b){ return a.val > b.val; });
+            sortedQueue.sort(function(a, b){ return a.val - b.val; });
 
-            //ділимо на групи поки ще є елементи
-            while(size){
-                if(!sortedQueue.length)	//якщо закінчились елементи в черзі - групи зформовані
-                    break;
+            //ділимо на групи поки ще є елементи в черзі і не додали в групи всі рядки у
+            while((fullSet.size < maxSize) && sortedQueue.length){
+                let el = sortedQueue.pop();		            //дістаємо останній максимальний елемент з черги
 
-                let currentGroup = new Set(),	//поточна група
-                    x, y, 						//позиція максимального елемента
-                    el = sortedQueue.pop();		//дістаємо останній максимальний елемент з черги
-
-                //якщо залишилось 2, або 1 елемент - це вже завжди остання група
-                if(size <= 2){
-                    for(let i = 0; i < arr.length; i++ ){
-                        if(!fullSet.has(i)){
-                            currentGroup.add(i);
-                            fullSet.add(i);
-                            --size;
-                        }
-                    }
+                let currentGroup = buildGroup(el, new Set(), fullSet, arr);
+                //якщо вдалося побудувати групу для цього елемента черги(його x або y нема в множині fullSet)
+                if(currentGroup.size > 0)
                     resultsArr.push(currentGroup);
-                    break;
-                }
+            }
 
-                //якщо № рядка і стовпця вже є в множині - переходимо до наступної ітерації
-                //(переходимо до наступного елемента в черзі sortedQueue)...
+            return resultsArr;
+
+            function buildGroup(el, currentGroup, fullSet, arr){
+                //якщо № рядка і стовпця вже є в множині - повертаємось до попереднього кроку рекурсії
                 if(fullSet.has(el.x) && fullSet.has(el.y))
-                    continue;
+                    return currentGroup;
 
                 //...інакше додаємо в поточну групу і в загальну множину № рядка і/або стовпця
                 if(!fullSet.has(el.x)){
                     currentGroup.add(el.x);
                     fullSet.add(el.x);
-                    --size;
                 }
                 if(!fullSet.has(el.y)){
                     currentGroup.add(el.y);
                     fullSet.add(el.y);
-                    --size;
                 }
 
                 //пробігаємо по Рядку, додаючи № стовпців елементів, що дорівнюють поточному, в групу
                 for(let i = 0; i < arr[el.x].length; i++){
-                    let item = arr[el.x][i];
-                    if( item === el.val && !fullSet.has(i) && (i !== el.y) ){
-                        currentGroup.add(i);
-                        fullSet.add(i);
-                        --size;
+                    let item = {    val: arr[el.x][i],    x: el.x,    y:i    };
+                    if( item.val === el.val && (item.y !== el.y) && !fullSet.has(item.y) ){
+                        currentGroup = buildGroup(item, currentGroup, fullSet, arr);
                     }
                 }
                 //пробігаємо по Стовпцю, додаючи № рядків елементів, що дорівнюють поточному, в групу
                 for(let i = 0; i < arr.length; i++){
-                    let item = arr[i][el.y];
-                    if(item === el.val && !fullSet.has(i) && (i !== el.x) ){
-                        currentGroup.add(i);
-                        fullSet.add(i);
-                        --size;
+                    let item = {    val: arr[i][el.y],    x: i,    y: el.y    };
+                    if( item.val === el.val && (item.x !== el.x) && !fullSet.has(item.x) ){
+                        currentGroup = buildGroup(item, currentGroup, fullSet, arr);
                     }
                 }
 
-                resultsArr.push(currentGroup);
+                return currentGroup;
             }
-
-            return resultsArr;
         },
 
         /**
