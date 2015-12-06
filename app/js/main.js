@@ -10,14 +10,22 @@ import U from './U.js';                    //different utilities, hacks and help
 
         initialize: function () {
             let initialMatrixOfOp = [
-                    ["T1", "T2", "C1", "P2", "F1", "T4"],
-                    ["T2", "T1", "C1", "F1", "T3"],
-                    ["T4", "F1", "T1", "T2", "C1", "F2"],
-                    ["T2", "T1", "F2", "C1"],
-                    ["T4", "T3", "T1", "T2"],
-                    ["T3", "F2", "T1", "T2"],
-                    ["T4", "T2", "T3", "C1"]
-                ];
+                ["T1", "T2", "T3", "F1", "C1", "C2", "P2"],
+                ["T1", "C1", "C2", "P2", "T4"],
+                ["T1", "C3", "T2", "T3", "C1", "C2", "P2"],
+                ["T2", "T3", "C1", "C2", "P2", "F1", "F2"],
+                ["T3", "C1", "C2", "P2", "F1", "T4"],
+                ["T2", "C3", "F1", "F2", "C1", "C2", "P2", "T4"],
+                ["T1", "C3", "T3", "C1", "C2", "P2", "F1", "F2"],
+
+                ["T1", "F1", "F2", "T2", "C1", "C2", "F3"],
+                ["T3", "T2", "C1", "C2", "F1", "P2"],
+                ["T4", "T3", "T2", "C1", "C2", "F1"],
+                ["T2", "C1", "C2", "F1", "F2", "P2"],
+                ["T2", "C1", "C2", "T3", "T4"],
+                ["T3", "T4", "F2", "P2", "T2", "C1", "C2"],
+                ["T2", "C1", "C2", "T4"]
+            ];
 
             this.form1 = document.forms["lab1-inp-form"];
 
@@ -1237,20 +1245,43 @@ import U from './U.js';                    //different utilities, hacks and help
                 ],
                 inverseNum: 5
             };  */
+            /*
+            modules = [
+                new Set(["T1"]),
+                new Set(["F1", "P2", "F2", "T4", "T3"]),
+                new Set(["T2"]),
+                new Set(["C1", "C2", "P2", "F1", "F2"]),
+                new Set(["C2"]),
+                new Set(["F3"]),
+                new Set(["C3"])
+            ];
 
+            modules = [
+                new Set(["T1"]),
+                new Set(["C3"]),
+                new Set(["F3"]),
+                new Set(["C1", "C2", "P2", "F1", "F2"]),
+                new Set(["T3", "T4", "T2"])
+            ];
+*/
             //знаходимо початковий вигляд технологічної структури
             let bestModules = modules.slice(0);
             let [ bestWays, minInverseNum ] = formulateTechStr(bestModules, matrOp);
+            let permArr = [];
 
             //робимо усі n! перестановок в пошуку найкращої комбінації
             for(let tmpModules of U.findAllPermutations(modules)){
                 let [ tmpWays, tmpInverseNum ] = formulateTechStr(tmpModules, matrOp);
+                permArr.push(tmpInverseNum);
                 if(tmpInverseNum < minInverseNum){
                     bestModules = tmpModules;
                     bestWays = tmpWays;
                     minInverseNum = tmpInverseNum;
                 }
             }
+
+            console.log(permArr);
+            console.log(permArr.sort());
 
             return {
                 modules: bestModules,
@@ -1261,7 +1292,7 @@ import U from './U.js';                    //different utilities, hacks and help
 
             function formulateTechStr(modules, matrOp){
                 let ways = [],
-                    inverseNum = 0;
+                    inverseConnections = [];
 
                 //Пробігаємо по рядкам операцій, рахуючи для кожного рядка шлях по модулям
                 for(let i=0; i < matrOp.length; i++){
@@ -1271,14 +1302,17 @@ import U from './U.js';                    //different utilities, hacks and help
                         Array.of(   modules.findIndex(m => m.has( matrOp[i][0] ))   )
                     );
                     for(let j=1; j < matrOp[i].length; j++){
-                        let modNum = modules.findIndex(m => m.has( matrOp[i][j] ));
-                        if( ways[i][ ways[i].length-1 ] !== modNum){    //якщо операція[i][j] виконується вже в іншому модулі
-                            if(ways[i][ ways[i].length-1 ] > modNum)    //якщо це зворотній зв'язок, інкрементуємо лічильник
-                                ++inverseNum;
+                        let modNum = modules.findIndex(m => m.has( matrOp[i][j] )),
+                            prevModNum = ways[i][ ways[i].length-1 ];
+                        if( prevModNum !== modNum){    //якщо операція[i][j] виконується вже в іншому модулі
+                            if(prevModNum > modNum)    //якщо це зворотній зв'язок, інкрементуємо лічильник
+                                inverseConnections.push(prevModNum + "," + modNum);
                             ways[i].push(modNum);
                         }
                     }
                 }
+
+                let inverseNum = U.getArrOfUniqueVals(inverseConnections).length;
 
                 return [ways, inverseNum];
             }
