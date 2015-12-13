@@ -457,28 +457,34 @@ import U from './U.js';                    //different utilities, hacks and help
         calcGroups: function(arr){
             let fullSet = new Set(),	//множина з усіма елементами в усіх вже заповнених групах(треба щоб запобігати повторів у кожній групі)
                 resultsArr = [],
-                maxSize = arr.length;   //скільки може бути елементів в групах
+                maxSize = arr.length,   //скільки може бути елементів в групах
+                arrMarked = [];
 
             //заповнюємо чергу із елементів у нижньому трикутнику та їх індексів
             let sortedQueue = [];
             for(let i = 0; i < arr.length; i++){
+                arrMarked[i] = new Array( arr[i].length );
                 for(let j = 0; j < arr[i].length; j++){
-                    //якщо кінець рядка нижнього трикутника(i == j), переходимо на інший рядок
-                    if(i == j)	break;
-                    sortedQueue.push({ val:arr[i][j],	x:i,	y:j });
+                    arrMarked[i][j] = false;
+                    //якщо це верхній трикутник, не додаємо елементи в чергу для уникнення дублікатів
+                    if(i >= j)	continue;
+                    sortedQueue.push({
+                        val: arr[i][j],                 //val - значення елемента
+                        x:i,    y:j                     //координати у масиві arr
+                    });
                 }
             }
             //сортуємо щоб потім перебирати із найбільших елементів до найменших
             sortedQueue.sort(function(a, b){ return a.val - b.val; });
 
-            //ділимо на групи поки ще є елементи в черзі і не додали в групи всі рядки у
+            //ділимо на групи поки ще є елементи в черзі і не додали в групи всі рядки у матриці операцій
             while((fullSet.size < maxSize) && sortedQueue.length){
                 let el = sortedQueue.pop(),		            //дістаємо останній максимальний елемент з черги
                     newGroup = {
                         grSet: new Set(),       //елементи групи
                         grArrCoords: []         //координати елементів групи
                     },
-                    currentGroup = buildGroup(el, newGroup, fullSet, arr);
+                    currentGroup = buildGroup(el, newGroup, fullSet, arr, arrMarked);
                 //якщо вдалося побудувати групу для цього елемента черги(його x або y нема в множині fullSet)
                 if(currentGroup.grSet.size > 0)
                     resultsArr.push(currentGroup);
@@ -486,10 +492,9 @@ import U from './U.js';                    //different utilities, hacks and help
 
             return resultsArr;
 
-            function buildGroup(el, currentGroup, fullSet, arr){
-                //якщо № рядка і стовпця вже є в множині - повертаємось до попереднього кроку рекурсії
-                if(fullSet.has(el.x) && fullSet.has(el.y))
-                    return currentGroup;
+            function buildGroup(el, currentGroup, fullSet, arr, arrMarked){
+                //позначаємо що цей елемент вже розглядали щоб не було зациклення рекурсії
+                arrMarked[el.x][el.y] = true;
 
                 //...інакше додаємо в поточну групу і в загальну множину № рядка і/або стовпця
                 if(!fullSet.has(el.x)){
@@ -505,16 +510,18 @@ import U from './U.js';                    //different utilities, hacks and help
 
                 //пробігаємо по Рядку, додаючи № стовпців елементів, що дорівнюють поточному, в групу
                 for(let i = 0; i < arr[el.x].length; i++){
-                    let item = {    val: arr[el.x][i],    x: el.x,    y:i    };
-                    if( item.val === el.val && (item.y !== el.y) && !fullSet.has(item.y) ){
-                        currentGroup = buildGroup(item, currentGroup, fullSet, arr);
+                    let x = el.x,    y = i,
+                        item = {    val: arr[el.x][i],    x,    y    };
+                    if( item.val === el.val && (item.y !== el.y) && !arrMarked[item.x][item.y] /*&& !fullSet.has(item.y) */){
+                        currentGroup = buildGroup(item, currentGroup, fullSet, arr, arrMarked);
                     }
                 }
                 //пробігаємо по Стовпцю, додаючи № рядків елементів, що дорівнюють поточному, в групу
                 for(let i = 0; i < arr.length; i++){
-                    let item = {    val: arr[i][el.y],    x: i,    y: el.y    };
-                    if( item.val === el.val && (item.x !== el.x) && !fullSet.has(item.x) ){
-                        currentGroup = buildGroup(item, currentGroup, fullSet, arr);
+                    let x = i,    y = el.y,
+                        item = {    val: arr[i][el.y],    x,    y    };
+                    if( item.val === el.val && (item.x !== el.x) && !arrMarked[item.x][item.y] /* && !fullSet.has(item.x) */){
+                        currentGroup = buildGroup(item, currentGroup, fullSet, arr, arrMarked);
                     }
                 }
 
