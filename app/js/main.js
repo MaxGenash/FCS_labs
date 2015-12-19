@@ -484,7 +484,15 @@ import U from './U.js';                    //different utilities, hacks and help
                 }
             }
             //сортуємо щоб потім перебирати із найбільших елементів до найменших
-            sortedQueue.sort(function(a, b){ return a.val - b.val; });
+            sortedQueue.sort(function(a, b){
+                if(a.val !== b.val)
+                    return a.val - b.val;
+                if( (a.x < b.x) || ((a.x == b.x) && (a.y < b.y)) )
+                    return +1;
+                if(a.val === b.val && a.x === b.x && a.y === b.y)
+                    return 0;
+                return -1;
+            });
 
             //ділимо на групи поки ще є елементи в черзі і не додали в групи всі рядки у матриці операцій
             while((fullSet.size < maxSize) && sortedQueue.length){
@@ -1354,21 +1362,16 @@ import U from './U.js';                    //different utilities, hacks and help
             //знаходимо початковий вигляд технологічної структури
             let bestModules = modules.slice(0);
             let [ bestWays, minInverseNum ] = formulateTechStr(bestModules, matrOp);
-            let permArr = [];
 
             //робимо усі n! перестановок в пошуку найкращої комбінації
             for(let tmpModules of U.findAllPermutations(modules)){
                 let [ tmpWays, tmpInverseNum ] = formulateTechStr(tmpModules, matrOp);
-                permArr.push(tmpInverseNum);
                 if(tmpInverseNum < minInverseNum){
                     bestModules = tmpModules;
                     bestWays = tmpWays;
                     minInverseNum = tmpInverseNum;
                 }
             }
-
-            console.log(permArr);
-            console.log(permArr.sort());
 
             return {
                 modules: bestModules,
