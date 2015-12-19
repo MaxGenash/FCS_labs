@@ -126,16 +126,19 @@ import U from './U.js';                    //different utilities, hacks and help
                                <th> № групи </th>
                                <th> Елементи групи </th>
                                <th> Координати елементів групи </th>
+                               <th> Відповідні операції </th>
                            </tr>`;
             opts.groups.forEach( function(item, i){
                 let grSet = [...item.grSet],    //перетворюємо Set в Array
-                    grArrCoords = [...item.grArrCoords];
+                    grArrCoords = [...item.grArrCoords],
+                    ops = [...item.ops];
                 grSet = grSet.map(el => ++el);    //інкрементуємо значення кожного елемента, бо нумерація з 0
                 str += `
                            <tr>
                                <td> ${ i+1 } </td>
                                <td> ${ grSet.join(', ') } </td>
                                <td> ${ grArrCoords.join(', ') } </td>
+                               <td> ${ ops.sort().join(', ') } </td>
                            </tr>`;
             });
             str += `</table>`;
@@ -371,7 +374,7 @@ import U from './U.js';                    //different utilities, hacks and help
 
             numOfUniqueOp = U.getArrOfUniqueVals( matrixOfOperations ).length;
             matrixOfUniqueOp = app.calcMatrixOfUniqueOp( matrixOfOperations );
-            groups = app.calcGroups( matrixOfUniqueOp );
+            groups = app.calcGroups( matrixOfUniqueOp, matrixOfOperations);
             let grSet = groups.map(el => el.grSet);
             orderedGroups = app.calcOrderedGroups(grSet, matrixOfOperations);
             groupsWithModules = app.calcGrpsWithModules(orderedGroups, matrixOfOperations);
@@ -463,7 +466,7 @@ import U from './U.js';                    //different utilities, hacks and help
             return resultArr;
         },
 
-        calcGroups: function(arr){
+        calcGroups: function(arr, ops){
             let fullSet = new Set(),	//множина з усіма елементами в усіх вже заповнених групах(треба щоб запобігати повторів у кожній групі)
                 resultsArr = [],
                 maxSize = arr.length,   //скільки може бути елементів в групах
@@ -499,15 +502,26 @@ import U from './U.js';                    //different utilities, hacks and help
                 let el = sortedQueue.pop(),		            //дістаємо останній максимальний елемент з черги
                     newGroup = {
                         grSet: new Set(),       //елементи групи
-                        grArrCoords: []         //координати елементів групи
+                        grArrCoords: [],        //координати елементів групи
+                        ops: new Set()          //операції для цієї групи
                     },
                     currentGroup = buildGroup(el, newGroup, fullSet, arr, arrMarked);
                 //якщо вдалося побудувати групу для цього елемента черги(його x або y нема в множині fullSet)
-                if(currentGroup.grSet.size > 0)
+                if(currentGroup.grSet.size > 0) {
+                    currentGroup.ops = calcOps(currentGroup.grSet, ops);
                     resultsArr.push(currentGroup);
+                }
             }
 
             return resultsArr;
+
+            function calcOps(grSet, ops){
+                var result = new Set();
+                grSet.forEach( (row) => {
+                    ops[row].forEach( op => result.add(op) );
+                });
+                return result;
+            }
 
             function buildGroup(el, currentGroup, fullSet, arr, arrMarked){
                 //позначаємо що цей елемент вже розглядали щоб не було зациклення рекурсії
