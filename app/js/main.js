@@ -125,7 +125,8 @@ import U from './U.js';                    //different utilities, hacks and help
                            <tr>
                                <th> № групи </th>
                                <th> Елементи групи </th>
-                               <th> Координати елементів групи </th>
+                               <!--th> -----Для перевірки правильності робооти-----
+                               Координати елементів групи </th-->
                                <th> Відповідні операції </th>
                            </tr>`;
             opts.groups.forEach( function(item, i){
@@ -137,7 +138,7 @@ import U from './U.js';                    //different utilities, hacks and help
                            <tr>
                                <td> ${ i+1 } </td>
                                <td> ${ grSet.join(', ') } </td>
-                               <td> ${ grArrCoords.join(', ') } </td>
+                               <!--td> ${ grArrCoords.join(', ') } </td-->
                                <td> ${ ops.sort().join(', ') } </td>
                            </tr>`;
             });
@@ -162,7 +163,7 @@ import U from './U.js';                    //different utilities, hacks and help
                                 ${ grps.join(', ') }
                             </td>
                             <td>
-                                ${ opts.join(', ') }
+                                ${ opts.sort().join(', ') }
                             </td>
                         </tr>`;
             });
