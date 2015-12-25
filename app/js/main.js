@@ -239,7 +239,7 @@ T1 T2 C1 T4 T5
                     techStrGraphBlock = document.getElementById("tech-structure-graph-block");
 
                 //заголовок модального вікна
-                modalTitle.innerText = "Граф групи №" + groupNum;
+                modalTitle.innerText = "Граф групи №" + (+groupNum+1);
 
                 //ховаємо блок для технологічної структури, показуємо слайдер для графів
                 carousel.classList.remove('hidden');
