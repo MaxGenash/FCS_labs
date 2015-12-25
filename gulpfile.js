@@ -53,7 +53,7 @@ var config = {
     },
     tunnel: false,
     host: 'localhost',
-    port: 9000,
+    port: 2016,
     logPrefix: "GKS_labs_gulp_info"
 };
 
