@@ -286,6 +286,23 @@ T1 T2 C1 T4 T5
                 carouselSlidesWrap.firstChild.classList.add("active");
             });
 
+            //Виводимо відсортовані модулі
+            let ordModulesBlock1 = document.getElementById("ordered-modules-block-1"),
+                str45 = `<table class='table table-bordered groups'>
+                           <tr>
+                               <th> № модуля </th>
+                               <th> Відповідні операції </th>
+                           </tr>`;
+            opts.ordModules.forEach( function(item, i){
+                str45 += `
+                           <tr>
+                               <td> ${ i+1 } </td>
+                               <td> ${ [...item].join(', ') } </td>
+                           </tr>`;
+            });
+            str45 += `</table>`;
+            ordModulesBlock1.innerHTML = str45;
+
             //Виводимо п'яті результати
             let optimizedModulesBlock1 = document.getElementById("optimized-modules-block-1"),
                 str5 = `<table class='table table-bordered groups'>
@@ -403,7 +420,8 @@ T1 T2 C1 T4 T5
             let grSet = groups.map(el => el.grSet);
             orderedGroups = app.calcOrderedGroups(grSet, matrixOfOperations);
             groupsWithModules = app.calcGrpsWithModules(orderedGroups, matrixOfOperations);
-            optimizedModules = app.calcOptimizedModules(groupsWithModules);
+            let orderedModules = app.calcOrderedModules(groupsWithModules);
+            optimizedModules = app.calcOptimizedModules(orderedModules);
             techStructure = app.calcTechStructure(optimizedModules, matrixOfOperations);
             //викликаємо функцію що перетворить дані в зручний для відображення вигляд
             let techStrForView = app.transformTechStrForView(techStructure);
@@ -415,6 +433,7 @@ T1 T2 C1 T4 T5
                 ordGrps: orderedGroups,
                 grpsWithMod: groupsWithModules,
                 optimizedModules: optimizedModules,
+                ordModules: orderedModules,
                 techStructure: techStrForView
             });
         },
@@ -1305,12 +1324,30 @@ T1 T2 C1 T4 T5
             }
         },
 
-        calcOptimizedModules(groupsWithModules){
-            let modulesArr = fetchModulesArr(groupsWithModules);
+        calcOrderedModules(groupsWithModules){
+            //дістаємо із отриманої структури даних потрібний масив
+            let modulesArr = groupsWithModules.reduce( (resArr, gr, i) => {
+                resArr.push(...gr.modules);
+                return resArr;
+            }, []);
 
             //відсортувати модулі
-            modulesArr.sort( (a, b) => a.size - b.size );
+            modulesArr.sort( (a, b) => {
+                if(a.size !== b.size)
+                    return a.size - b.size;
+                let stra = [...a].toString(),
+                    strb = [...b].toString();
+                if(stra < strb)
+                    return -1;
+                if(stra > strb)
+                    return +1;
+                return 0;
+            });
 
+            return  modulesArr;
+        },
+
+        calcOptimizedModules(modulesArr){
             //повидаляти усі модулі всі елементи яких є в більших модулях
             modulesArr = modulesArr.filter((item, i, arr) => {
                 let numOfOwnEl = item.size;     //скільки у модуля елементів, яких нема в наступних модулях
@@ -1348,15 +1385,6 @@ T1 T2 C1 T4 T5
             }while(wasOverlap);
 
             return modulesArr;
-
-
-            //дістаємо із отриманої структури даних потрібний масив
-            function fetchModulesArr(groupsWithModules){
-                return groupsWithModules.reduce( (resArr, gr, i) => {
-                    resArr.push(...gr.modules);
-                    return resArr;
-                }, []);
-            }
         },
 
         calcTechStructure(modules, matrOp){
