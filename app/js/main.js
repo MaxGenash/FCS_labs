@@ -78,7 +78,7 @@ T1 T2 C1 T4 T5
                 groups: null,                               //групи із рядків з операціями
                 orderedGroups: null,                        //упорядковані групи
                 groupsWithModules: null,                    //групи з модулями операцій
-                orderedModules: null,                       //упорядковані модулі
+                optimizedModules: null,                       //упорядковані модулі
                 technologicalStructure: null                //технологічна структура
             };
 
@@ -287,13 +287,13 @@ T1 T2 C1 T4 T5
             });
 
             //Виводимо п'яті результати
-            let ordModulesBlock1 = document.getElementById("ordered-modules-block-1"),
+            let optimizedModulesBlock1 = document.getElementById("optimized-modules-block-1"),
                 str5 = `<table class='table table-bordered groups'>
                            <tr>
                                <th> № модуля </th>
                                <th> Відповідні операції </th>
                            </tr>`;
-            opts.ordModules.forEach( function(item, i){
+            opts.optimizedModules.forEach( function(item, i){
                 str5 += `
                            <tr>
                                <td> ${ i+1 } </td>
@@ -301,7 +301,7 @@ T1 T2 C1 T4 T5
                            </tr>`;
             });
             str5 += `</table>`;
-            ordModulesBlock1.innerHTML = str5;
+            optimizedModulesBlock1.innerHTML = str5;
 
             //Виводимо шості результати
             //Кількість зворотніх зв'язків
@@ -386,7 +386,7 @@ T1 T2 C1 T4 T5
                 groups = app.dataState.groups,
                 orderedGroups = app.dataState.orderedGroups,
                 groupsWithModules = app.dataState.groupsWithModules,
-                orderedModules = app.dataState.orderedModules,
+                optimizedModules = app.dataState.optimizedModules,
                 techStructure = app.dataState.technologicalStructure,
 
                 form = e.target;
@@ -403,8 +403,8 @@ T1 T2 C1 T4 T5
             let grSet = groups.map(el => el.grSet);
             orderedGroups = app.calcOrderedGroups(grSet, matrixOfOperations);
             groupsWithModules = app.calcGrpsWithModules(orderedGroups, matrixOfOperations);
-            orderedModules = app.calcOrderedModules(groupsWithModules);
-            techStructure = app.calcTechStructure(orderedModules, matrixOfOperations);
+            optimizedModules = app.calcOptimizedModules(groupsWithModules);
+            techStructure = app.calcTechStructure(optimizedModules, matrixOfOperations);
             //викликаємо функцію що перетворить дані в зручний для відображення вигляд
             let techStrForView = app.transformTechStrForView(techStructure);
 
@@ -414,7 +414,7 @@ T1 T2 C1 T4 T5
                 groups: groups,
                 ordGrps: orderedGroups,
                 grpsWithMod: groupsWithModules,
-                ordModules: orderedModules,
+                optimizedModules: optimizedModules,
                 techStructure: techStrForView
             });
         },
@@ -1305,7 +1305,7 @@ T1 T2 C1 T4 T5
             }
         },
 
-        calcOrderedModules(groupsWithModules){
+        calcOptimizedModules(groupsWithModules){
             let modulesArr = fetchModulesArr(groupsWithModules);
 
             //відсортувати модулі
