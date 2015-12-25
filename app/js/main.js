@@ -9,6 +9,38 @@ import U from './U.js';                    //different utilities, hacks and help
     var app = {
 
         initialize: function () {
+            var str = `
+T1 T2 T3 F1 C1 C2 P2
+T1 C1 C2 P2 T4
+T1 C3 T2 T3 C1 C2 P2
+T2 T3 C1 C2 P2 F1 F2
+T3 C1 C2 P2 F1 T4
+T2 C3 F1 F2 C1 C2 P2 T4
+T1 C3 T3 C1 C2 P2 F1 F2
+T3 T4 T1 T2 C1 F2 F3
+T1 T2 C1
+C2 T3 F2 F3 T1 T2 C1
+T1 T2 C1 T3 T4
+T1 T2 C1 T3 C2 T4
+T1 T2 C1 F1 T3 T4 T5
+T1 T2 C1 T4 T5
+`;
+
+            var arr = str.split("\n");
+
+            var arr2 = [];
+            arr.forEach(el => {
+                if(el){
+                    var tmpArr = el.split(" ");
+                    var arr2row = [];
+                    tmpArr.forEach(item => {
+                        if(item)
+                            arr2row.push(item);
+                    });
+                    arr2.push(arr2row);
+                }
+            });
+/*
             let initialMatrixOfOp = [
                 ["T1", "T2", "T3", "F1", "C1", "C2", "P2"],
                 ["T1", "C1", "C2", "P2", "T4"],
@@ -25,17 +57,9 @@ import U from './U.js';                    //different utilities, hacks and help
                 ["T2", "C1", "C2", "T3", "T4"],
                 ["T3", "T4", "F2", "P2", "T2", "C1", "C2"],
                 ["T2", "C1", "C2", "T4"]
-                /*["T1","T2","T3","T4"],
-                ["T5","T2","T1","T3"],
-                ["T5","T6","T9","T7"],
-                ["F1","T1","G5","R2"],
-                ["T1","T2","T3"],
-                ["T2","T3"],
-                ["T4","G5","R2","R1"],
-                ["R2"],
-                ["G5","R2","T1"]*/
             ];
-
+*/
+            let initialMatrixOfOp = arr2;
             this.form1 = document.forms["lab1-inp-form"];
 
             //дані якими оперує програма
@@ -1377,16 +1401,21 @@ import U from './U.js';                    //different utilities, hacks and help
             //знаходимо початковий вигляд технологічної структури
             let bestModules = modules.slice(0);
             let [ bestWays, minInverseNum ] = formulateTechStr(bestModules, matrOp);
+            let permArr = [];
 
             //робимо усі n! перестановок в пошуку найкращої комбінації
             for(let tmpModules of U.findAllPermutations(modules)){
                 let [ tmpWays, tmpInverseNum ] = formulateTechStr(tmpModules, matrOp);
+                permArr.push(tmpInverseNum);
                 if(tmpInverseNum < minInverseNum){
                     bestModules = tmpModules;
                     bestWays = tmpWays;
                     minInverseNum = tmpInverseNum;
                 }
             }
+
+            console.log(permArr);
+            console.log(permArr.sort());
 
             return {
                 modules: bestModules,
