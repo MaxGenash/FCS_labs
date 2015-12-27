@@ -1348,8 +1348,9 @@ T1 T2 C1 T4 T5
         },
 
         calcOptimizedModules(modulesArr){
+            // U.deepClone(modulesArr) - дуже важливо!!! інакше передасться по адресі і далі вихідний массив модифікується
             //повидаляти усі модулі всі елементи яких є в більших модулях
-            modulesArr = modulesArr.filter((item, i, arr) => {
+            modulesArr = U.deepClone(modulesArr).filter((item, i, arr) => {
                 let numOfOwnEl = item.size;     //скільки у модуля елементів, яких нема в наступних модулях
                 arr.slice(i+1).forEach( (item2) => {
                     for(let el of item){
@@ -1498,10 +1499,14 @@ T1 T2 C1 T4 T5
 
             function buildMiddleModules(modules, firstModule, lastModule){
                 //робимо копію щоб не змінити переданний масив
-                let tmpModules = modules.slice(0);
+                let tmpModules = U.deepClone(modules);
                 //видаляємо 1 і останній модулі
-                tmpModules.splice(tmpModules.indexOf(firstModule), 1);
-                tmpModules.splice(tmpModules.indexOf(lastModule), 1);
+                tmpModules.splice(tmpModules.findIndex((el, i, arr) => {
+                    return U.isSubSet(el, firstModule);
+                }), 1);
+                tmpModules.splice(tmpModules.findIndex((el, i, arr) => {
+                    return U.isSubSet(el, lastModule);
+                }), 1);
                 return tmpModules;
             }
 
