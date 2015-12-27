@@ -1065,7 +1065,10 @@ T1 T2 C1 T4 T5
                         };     //тимчасова множина для уникнення повторів дуг
 
                     //створюємо масив вершин
-                    initialState.nodes = U.getArrOfUniqueVals(matrixOfOps);   //отримаємо масив рядків
+                    group.forEach((el) => {
+                        initialState.nodes.push(...matrixOfOps[el]);
+                    });
+                    initialState.nodes = U.getArrOfUniqueVals(initialState.nodes);   //отримаємо масив рядків
 
                     //створюємо масив дуг
                     group.forEach( (row) => {   //кожен елемент групи - рядок операцій
