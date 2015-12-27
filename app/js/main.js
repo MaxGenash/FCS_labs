@@ -1426,24 +1426,41 @@ T1 T2 C1 T4 T5
                 new Set(["T3", "T4", "T2"])
             ];
 */
-            //знаходимо початковий вигляд технологічної структури
-            let bestModules = modules.slice(0);
-            let [ bestWays, minInverseNum ] = formulateTechStr(bestModules, matrOp);
-            let permArr = [];
+            /////// Знаходимо початковий вигляд технологічної структури
+            let firstOpArr = matrOp.map( (row) => {         //масив з початковими операціями з матриці операцій
+                return row[0];
+            });
+            let lastOpArr = matrOp.map( (row) => {          //масив з кінцевими операціями з матриці операцій
+                return row[row.length-1];
+            });
+            //масиви можливих варіантів першого і останнього модуля(може вийти так,
+            // що модулів в які входить(виходить) максимальна кількість операцій буде декілька)
+            let firstModulesArr = buildArrOfMWMNoOE(modules, firstOpArr),
+                lastModulesArr = buildArrOfMWMNoOE(modules, lastOpArr);
+            let middleModules = buildMiddleModules(modules, firstModulesArr[0], lastModulesArr[0]),
+                bestModules = Array.of(firstModulesArr[0], ...middleModules,  lastModulesArr[0]),
+                [ bestWays, minInverseNum ] = formulateTechStr(bestModules, matrOp);
 
-            //робимо усі n! перестановок в пошуку найкращої комбінації
-            for(let tmpModules of U.findAllPermutations(modules)){
-                let [ tmpWays, tmpInverseNum ] = formulateTechStr(tmpModules, matrOp);
-                permArr.push(tmpInverseNum);
-                if(tmpInverseNum < minInverseNum){
-                    bestModules = tmpModules;
-                    bestWays = tmpWays;
-                    minInverseNum = tmpInverseNum;
+            //пробігаємо по можливих варіантах масивів firstModulesArr та lastModulesArr,
+            // обираючи ті вхідний та вихідний модулі, при використанні яких буде мінімальна кількість зворотніх зв'язків
+            for(let firstModule of firstModulesArr){
+                for(let lastModule of lastModulesArr){
+                    middleModules = buildMiddleModules(modules, firstModule, lastModule);
+                    //робимо масив, що містить усі n! перестановок внутрішніх модулів
+                    let mmPermArr = U.findAllPermutations(middleModules);
+                    // Пробігаємо по всіх перестановках внутрішніх модулів в пошуку найкращої комбінації
+                    for(let mModules of mmPermArr) {
+                        //об'єднуємо перший, внутрішні та останній модулі
+                        let tmpModules = Array.of(firstModule, ...mModules, lastModule);
+                        let [ tmpWays, tmpInverseNum ] = formulateTechStr(tmpModules, matrOp);
+                        if(tmpInverseNum < minInverseNum) {
+                            bestModules = tmpModules;
+                            bestWays = tmpWays;
+                            minInverseNum = tmpInverseNum;
+                        }
+                    }
                 }
             }
-
-            console.log(permArr);
-            console.log(permArr.sort());
 
             return {
                 modules: bestModules,
@@ -1451,6 +1468,42 @@ T1 T2 C1 T4 T5
                 inverseNum: minInverseNum
             };
 
+
+            //шукає модуль із масиву modules з максимальною кількістю входжень операцій з масиву opArr
+            //the name stands for build Array of Modules With Max Number of Operations Entries
+            function buildArrOfMWMNoOE(modules, opArr){
+                let maxNumOfEntries = calcNumOfEntries(modules[0],opArr),
+                    resultArr = [ modules[0] ];
+
+                for(let i=1; i< modules.length-1; i++) {
+                    let numOfEntries = calcNumOfEntries(modules[i], opArr);
+                    if (maxNumOfEntries < numOfEntries) {
+                        maxNumOfEntries = numOfEntries;
+                        resultArr = [ modules[i] ];
+                    } else if( maxNumOfEntries === numOfEntries ){
+                        resultArr.push(modules[i]);
+                    }
+                }
+
+                return resultArr;
+
+
+                function calcNumOfEntries(module, opArr){
+                    return opArr.reduce((sum, op)=>{
+                        if( module.has(op) ) ++sum;
+                        return sum;
+                    }, 0);
+                }
+            }
+
+            function buildMiddleModules(modules, firstModule, lastModule){
+                //робимо копію щоб не змінити переданний масив
+                let tmpModules = modules.slice(0);
+                //видаляємо 1 і останній модулі
+                tmpModules.splice(tmpModules.indexOf(firstModule), 1);
+                tmpModules.splice(tmpModules.indexOf(lastModule), 1);
+                return tmpModules;
+            }
 
             function formulateTechStr(modules, matrOp){
                 let ways = [],
