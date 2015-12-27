@@ -136,8 +136,12 @@ function deepClone(obj) {
 			var value = obj[i];
 			out[i] = (value instanceof O) ? deepClone(value) : value;
 		}
-	}
-	else {
+	} else  if (obj instanceof Set) {
+		var out = new Set();
+		for (var el of obj) {
+			out.add( (el instanceof O) ? deepClone(el) : el );
+		}
+	} else {
 		var out = {};
 		for (var key in obj) {
 			if (obj.hasOwnProperty(key)) {
