@@ -1538,7 +1538,7 @@ T1 T2 C1 T4 T5
                 let maxNumOfEntries = calcNumOfEntries(modules[0],opArr),
                     resultArr = [ modules[0] ];
 
-                for(let i=1; i< modules.length-1; i++) {
+                for(let i=1; i < modules.length; i++) {
                     let numOfEntries = calcNumOfEntries(modules[i], opArr);
                     if (maxNumOfEntries < numOfEntries) {
                         maxNumOfEntries = numOfEntries;
